@@ -452,12 +452,10 @@ public class FavFragment extends Fragment implements MyItemClickListener, MyItem
             super.onPostExecute(errorCode);
 
             isLoading = false;
-            if (md != null && md.isShowing()) {
-                try {
-                    md.dismiss();
-                } catch (IllegalArgumentException e) {
-                    // unexpected error: IllegalArgumentException: View=... not attached to window manager
-                }
+            try {
+                md.dismiss();
+            } catch (Exception e) {
+                // ignore
             }
             if(errorCode != Wenku8Error.ErrorCode.SYSTEM_1_SUCCEEDED) {
                 Toast.makeText(MyApp.getContext(), errorCode.toString(), Toast.LENGTH_SHORT).show();
@@ -537,12 +535,10 @@ public class FavFragment extends Fragment implements MyItemClickListener, MyItem
         protected void onPostExecute(Wenku8Error.ErrorCode err) {
             super.onPostExecute(err);
 
-            if (md != null && md.isShowing()) {
-                try {
-                    md.dismiss();
-                } catch (IllegalArgumentException e) {
-                    // unexpected error: IllegalArgumentException: View=... not attached to window manager
-                }
+            try {
+                md.dismiss();
+            } catch (Exception e) {
+                // ignore
             }
             if (err == Wenku8Error.ErrorCode.SYSTEM_1_SUCCEEDED) {
                 Toast.makeText(getActivity(), getResources().getString(R.string.bookshelf_removed), Toast.LENGTH_SHORT).show();
