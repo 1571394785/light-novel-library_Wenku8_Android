@@ -27,6 +27,6 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:scrollbars="vertical"
-            android:fastScrollEnabled="true"/>
+            android:fastScrollEnabled="false"/>
     </LinearLayout>
 </RelativeLayout>
