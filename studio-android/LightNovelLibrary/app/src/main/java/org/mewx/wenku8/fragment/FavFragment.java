@@ -452,7 +452,11 @@ public class FavFragment extends Fragment implements MyItemClickListener, MyItem
             super.onPostExecute(errorCode);
 
             isLoading = false;
-            md.dismiss();
+            try {
+                md.dismiss();
+            } catch (Exception e) {
+                // Ignore the NullPointerException due to dialog is null or IllegalArgumentException due to View not attached to window manager.
+            }
             if(errorCode != Wenku8Error.ErrorCode.SYSTEM_1_SUCCEEDED) {
                 Toast.makeText(MyApp.getContext(), errorCode.toString(), Toast.LENGTH_SHORT).show();
                 refreshList(timecount ++);
@@ -531,7 +535,11 @@ public class FavFragment extends Fragment implements MyItemClickListener, MyItem
         protected void onPostExecute(Wenku8Error.ErrorCode err) {
             super.onPostExecute(err);
 
-            md.dismiss();
+            try {
+                md.dismiss();
+            } catch (Exception e) {
+                // Ignore the NullPointerException due to dialog is null or IllegalArgumentException due to View not attached to window manager.
+            }
             if (err == Wenku8Error.ErrorCode.SYSTEM_1_SUCCEEDED) {
                 Toast.makeText(getActivity(), getResources().getString(R.string.bookshelf_removed), Toast.LENGTH_SHORT).show();
                 loadAllLocal();
