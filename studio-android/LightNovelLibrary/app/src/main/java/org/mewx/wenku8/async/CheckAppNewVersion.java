@@ -78,22 +78,25 @@ public class CheckAppNewVersion extends AsyncTask<Void, Void, Integer> {
             if (verboseMode) {
                 Toast.makeText(ctx, ctx.getResources().getString(R.string.system_update_latest_version), Toast.LENGTH_SHORT).show();
             }
-        } else if (ctx instanceof Activity && ((Activity) ctx).hasWindowFocus()) {
-            // Note that checking window focus is needed: https://stackoverflow.com/a/41118674/4206925
+        } else if (ctx instanceof Activity) {
+            Activity activity = (Activity) ctx;
+            if (!activity.isFinishing() && !activity.isDestroyed() && activity.hasWindowFocus()) {
+                // Note that checking window focus is needed: https://stackoverflow.com/a/41118674/4206925
 
-            // Update to new version.
-            new MaterialDialog.Builder(ctx)
-                    .theme(Theme.LIGHT)
-                    .title(R.string.system_update_found_new)
-                    .content(R.string.system_update_jump_to_page)
-                    .positiveText(R.string.dialog_positive_sure)
-                    .negativeText(R.string.dialog_negative_biao)
-                    .negativeColorRes(R.color.menu_text_color)
-                    .onPositive((dialog, which) -> {
-                        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(GlobalConfig.blogPageUrl));
-                        ctx.startActivity(browserIntent);
-                    })
-                    .show();
+                // Update to new version.
+                new MaterialDialog.Builder(activity)
+                        .theme(Theme.LIGHT)
+                        .title(R.string.system_update_found_new)
+                        .content(R.string.system_update_jump_to_page)
+                        .positiveText(R.string.dialog_positive_sure)
+                        .negativeText(R.string.dialog_negative_biao)
+                        .negativeColorRes(R.color.menu_text_color)
+                        .onPositive((dialog, which) -> {
+                            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(GlobalConfig.blogPageUrl));
+                            activity.startActivity(browserIntent);
+                        })
+                        .show();
+            }
         }
     }
 }
