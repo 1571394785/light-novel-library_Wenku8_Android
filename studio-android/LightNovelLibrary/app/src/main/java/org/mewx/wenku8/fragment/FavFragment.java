@@ -455,7 +455,7 @@ public class FavFragment extends Fragment implements MyItemClickListener, MyItem
             try {
                 md.dismiss();
             } catch (Exception e) {
-                // ignore
+                // ignore, NPE due to md is null or IllegalArgumentException due to View not attached to window manager
             }
             if(errorCode != Wenku8Error.ErrorCode.SYSTEM_1_SUCCEEDED) {
                 Toast.makeText(MyApp.getContext(), errorCode.toString(), Toast.LENGTH_SHORT).show();
@@ -538,7 +538,7 @@ public class FavFragment extends Fragment implements MyItemClickListener, MyItem
             try {
                 md.dismiss();
             } catch (Exception e) {
-                // ignore
+                // ignore, NPE due to md is null or IllegalArgumentException due to View not attached to window manager
             }
             if (err == Wenku8Error.ErrorCode.SYSTEM_1_SUCCEEDED) {
                 Toast.makeText(getActivity(), getResources().getString(R.string.bookshelf_removed), Toast.LENGTH_SHORT).show();
