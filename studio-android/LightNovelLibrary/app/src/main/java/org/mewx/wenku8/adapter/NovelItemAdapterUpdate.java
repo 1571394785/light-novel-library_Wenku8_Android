@@ -28,7 +28,10 @@ import org.mewx.wenku8.network.LightNetwork;
 import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -41,6 +44,7 @@ public class NovelItemAdapterUpdate extends RecyclerView.Adapter<NovelItemAdapte
     private MyOptionClickListener mMyOptionClickListener;
     private MyItemLongClickListener mItemLongClickListener;
     private List<NovelItemInfoUpdate> mDataset;
+    private Set<Integer> loadingAids = Collections.synchronizedSet(new HashSet<>());
 
     // empty list, then use append method to add list elements
     public NovelItemAdapterUpdate() {
@@ -66,15 +70,27 @@ public class NovelItemAdapterUpdate extends RecyclerView.Adapter<NovelItemAdapte
 
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder viewHolder, int i) {
-        if (!mDataset.get(i).isInitialized()) {
-            refreshAllContent(viewHolder, mDataset.get(i));
-        } else if (!viewHolder.isLoading.get()) {
-            // Have to cache the aid here in UI thread.
-            new AsyncLoadNovelIntro(mDataset.get(i).aid, viewHolder).execute();
+        // ALWAYS refresh all fields even if it's "Loading..." to avoid ghosting from recycled views.
+        refreshAllFields(viewHolder, mDataset.get(i));
+
+        // Check if we need to load current item.
+        checkAndLoad(mDataset.get(i).aid, i);
+
+        // Prefetch next 10 items.
+        for (int k = 1; k <= 10; k++) {
+            if (i + k < mDataset.size()) {
+                checkAndLoad(mDataset.get(i + k).aid, i + k);
+            }
         }
     }
 
-    private void refreshAllContent(final ViewHolder viewHolder, NovelItemInfoUpdate info) {
+    private void checkAndLoad(int aid, int position) {
+        if (mDataset.get(position).isInitialized() && !loadingAids.contains(aid)) {
+            new AsyncLoadNovelIntro(aid).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        }
+    }
+
+    private void refreshAllFields(final ViewHolder viewHolder, NovelItemInfoUpdate info) {
         // unknown NPE, just make
         if (viewHolder == null || mDataset == null || info == null)
             return;
@@ -133,7 +149,6 @@ public class NovelItemAdapterUpdate extends RecyclerView.Adapter<NovelItemAdapte
         private MyItemClickListener mClickListener;
         private MyOptionClickListener mMyOptionClickListener;
         private MyItemLongClickListener mLongClickListener;
-        public AtomicBoolean isLoading = new AtomicBoolean(false);
 
         private ImageButton ibNovelOption;
         private TableRow trNovelIntro;
@@ -198,24 +213,21 @@ public class NovelItemAdapterUpdate extends RecyclerView.Adapter<NovelItemAdapte
 
     @SuppressLint("StaticFieldLeak")
     private class AsyncLoadNovelIntro extends AsyncTask<Void, Void, Wenku8Error.ErrorCode> {
-        private final ViewHolder vh;
         private final int aid;
         private String novelIntro;
-        private boolean raceCondition;
 
-        AsyncLoadNovelIntro(int aid, ViewHolder vh) {
+        AsyncLoadNovelIntro(int aid) {
             this.aid = aid;
-            this.vh = vh;
+        }
 
-            raceCondition = !vh.isLoading.compareAndSet(false, true);
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            loadingAids.add(aid); // Mark as loading
         }
 
         @Override
         protected Wenku8Error.ErrorCode doInBackground(Void... params) {
-            if (raceCondition) {
-                return Wenku8Error.ErrorCode.ERROR_DEFAULT;
-            }
-
             try {
                 byte[] res = LightNetwork.LightHttpPostConnection(Wenku8API.BASE_URL,
                         Wenku8API.getNovelShortInfoUpdate_CV(aid, GlobalConfig.getCurrentLang()));
@@ -234,6 +246,7 @@ public class NovelItemAdapterUpdate extends RecyclerView.Adapter<NovelItemAdapte
         @Override
         protected void onPostExecute(Wenku8Error.ErrorCode errorCode) {
             super.onPostExecute(errorCode);
+            loadingAids.remove(aid); // Mark as finished
 
             if(errorCode == Wenku8Error.ErrorCode.SYSTEM_1_SUCCEEDED) {
                 // The index might have been changed. We need to find the correct index again.
@@ -248,12 +261,12 @@ public class NovelItemAdapterUpdate extends RecyclerView.Adapter<NovelItemAdapte
                 // Update info, but we need to validate the index first.
                 if (currentIndex >= 0) {
                     NovelItemInfoUpdate info = NovelItemInfoUpdate.parse(novelIntro);
-                    mDataset.set(currentIndex, info);
-                    notifyItemChanged(currentIndex);
+                    if (info != null) {
+                       mDataset.set(currentIndex, info);
+                       notifyItemChanged(currentIndex);
+                    }
                 }
             }
-
-            vh.isLoading.set(false);
         }
     }
 
