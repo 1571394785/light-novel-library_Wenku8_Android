@@ -70,11 +70,18 @@ public class NovelItemAdapterUpdate extends RecyclerView.Adapter<NovelItemAdapte
 
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder viewHolder, int i) {
-        // ALWAYS refresh all fields even if it's "Loading..." to avoid ghosting from recycled views.
-        refreshAllFields(viewHolder, mDataset.get(i));
+        // Check cache first
+        NovelItemInfoUpdate cached = NovelItemInfoUpdate.getFromCache(mDataset.get(i).aid);
+        if (cached != null) {
+            mDataset.set(i, cached);
+            refreshAllFields(viewHolder, cached);
+        } else {
+            // ALWAYS refresh all fields even if it's "Loading..." to avoid ghosting from recycled views.
+            refreshAllFields(viewHolder, mDataset.get(i));
 
-        // Check if we need to load current item.
-        checkAndLoad(mDataset.get(i).aid, i);
+            // Check if we need to load current item.
+            checkAndLoad(mDataset.get(i).aid, i);
+        }
 
         // Prefetch next 10 items.
         for (int k = 1; k <= 10; k++) {
@@ -85,7 +92,7 @@ public class NovelItemAdapterUpdate extends RecyclerView.Adapter<NovelItemAdapte
     }
 
     private void checkAndLoad(int aid, int position) {
-        if (mDataset.get(position).isInitialized() && !loadingAids.contains(aid)) {
+        if (mDataset.get(position).isInitialized() && !loadingAids.contains(aid) && NovelItemInfoUpdate.getFromCache(aid) == null) {
             new AsyncLoadNovelIntro(aid).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         }
     }
@@ -262,6 +269,7 @@ public class NovelItemAdapterUpdate extends RecyclerView.Adapter<NovelItemAdapte
                 if (currentIndex >= 0) {
                     NovelItemInfoUpdate info = NovelItemInfoUpdate.parse(novelIntro);
                     if (info != null) {
+                       NovelItemInfoUpdate.putToCache(info); // Cache the result!
                        mDataset.set(currentIndex, info);
                        notifyItemChanged(currentIndex);
                     }
