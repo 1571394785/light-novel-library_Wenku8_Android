@@ -4,7 +4,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,7 +26,7 @@ import com.google.android.material.snackbar.Snackbar;
 import org.mewx.wenku8.R;
 import org.mewx.wenku8.activity.MainActivity;
 import org.mewx.wenku8.activity.NovelInfoActivity;
-import org.mewx.wenku8.adapter.NovelItemAdapter;
+import org.mewx.wenku8.adapter.NovelItemAdapterUpdate;
 import org.mewx.wenku8.async.CheckAppNewVersion;
 import org.mewx.wenku8.global.GlobalConfig;
 import org.mewx.wenku8.global.api.NovelItemInfoUpdate;
@@ -57,7 +56,7 @@ public class LatestFragment extends Fragment implements MyItemClickListener, MyI
 
     // Novel Item info
     private List<NovelItemInfoUpdate> listNovelItemInfo = new ArrayList<>();
-    private NovelItemAdapter mAdapter;
+    private NovelItemAdapterUpdate mAdapter;
     private int currentPage, totalPage; // currentP stores next reading page num, TODO: fix wrong number
 
     // switcher
@@ -234,11 +233,9 @@ public class LatestFragment extends Fragment implements MyItemClickListener, MyI
 
                 for (int i = 0; i < l.size(); i++) {
                     NovelListWithInfoParser.NovelListWithInfo nlwi = l.get(i);
+                    // Lean Initialization: only set AID, let adapter load the rest.
                     NovelItemInfoUpdate ni = new NovelItemInfoUpdate(nlwi.aid);
-                    ni.title = nlwi.name;
-                    ni.author = nlwi.hit + ""; // hit
-                    ni.update = nlwi.push + ""; // push
-                    ni.intro_short = nlwi.fav + ""; // fav
+                    // We don't populate other fields here, effectively discarding the hit/push/fav info in favor of loading the full standard info via NovelItemAdapterUpdate.
                     listNovelItemInfo.add(ni);
                     numOfItemsToRefresh ++;
                 }
@@ -265,7 +262,7 @@ public class LatestFragment extends Fragment implements MyItemClickListener, MyI
             // hide loading layout
             // Note that after switching between fragments, the adapter has a chance to disappear. So, we need to attach it back.
             if (mAdapter == null || mNovelItemListView.getAdapter() == null) {
-                mAdapter = new NovelItemAdapter(listNovelItemInfo);
+                mAdapter = new NovelItemAdapterUpdate(listNovelItemInfo);
                 mAdapter.setOnItemClickListener(LatestFragment.this);
                 mAdapter.setOnItemLongClickListener(LatestFragment.this);
                 mNovelItemListView.setAdapter(mAdapter);
