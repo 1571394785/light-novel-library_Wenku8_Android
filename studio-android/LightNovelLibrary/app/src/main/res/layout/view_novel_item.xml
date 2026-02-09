@@ -55,6 +55,8 @@
                     android:layout_below="@+id/divider"
                     android:adjustViewBounds="true"
                     android:minHeight="80dp"
+                    android:stretchColumns="1"
+                    android:shrinkColumns="1"
                     android:layout_alignParentLeft="true"
                     android:layout_alignParentStart="true">
 
