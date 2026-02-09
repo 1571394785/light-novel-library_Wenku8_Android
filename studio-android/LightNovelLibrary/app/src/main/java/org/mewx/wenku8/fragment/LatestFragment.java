@@ -212,23 +212,24 @@ public class LatestFragment extends Fragment implements MyItemClickListener, MyI
         }
     }
 
-    class AsyncLoadLatestList extends AsyncTask<ContentValues, Integer, Integer> {
+    class AsyncLoadLatestList extends AsyncTask<ContentValues, Integer, List<NovelItemInfoUpdate>> {
         private boolean usingWenku8Relay = false;
         private int numOfItemsToRefresh = 0;
 
-        // fail return -1
+        // fail return null
         @Override
-        protected Integer doInBackground(ContentValues... params) {
+        protected List<NovelItemInfoUpdate> doInBackground(ContentValues... params) {
+            List<NovelItemInfoUpdate> newItems = new ArrayList<>();
             try {
                 byte[] tempXml = LightNetwork.LightHttpPostConnection(Wenku8API.BASE_URL, params[0]);
                 if (tempXml == null) {
-                    return -100;
+                    return null;
                 }
                 String xml = new String(tempXml, "UTF-8");
                 totalPage = NovelListWithInfoParser.getNovelListWithInfoPageNum(xml);
                 List<NovelListWithInfoParser.NovelListWithInfo> l = NovelListWithInfoParser.getNovelListWithInfo(xml);
                 if (l.isEmpty()) {
-                    return -100;
+                    return null;
                 }
 
                 for (int i = 0; i < l.size(); i++) {
@@ -236,18 +237,17 @@ public class LatestFragment extends Fragment implements MyItemClickListener, MyI
                     // Lean Initialization: only set AID, let adapter load the rest.
                     NovelItemInfoUpdate ni = new NovelItemInfoUpdate(nlwi.aid);
                     // We don't populate other fields here, effectively discarding the hit/push/fav info in favor of loading the full standard info via NovelItemAdapterUpdate.
-                    listNovelItemInfo.add(ni);
-                    numOfItemsToRefresh ++;
+                    newItems.add(ni);
                 }
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
             }
-            return 0;
+            return newItems;
         }
 
         @Override
-        protected void onPostExecute(Integer result) {
-            if (result == -100) {
+        protected void onPostExecute(List<NovelItemInfoUpdate> result) {
+            if (result == null) {
                 if(!isAdded())
                     return; // detached
 
@@ -256,6 +256,10 @@ public class LatestFragment extends Fragment implements MyItemClickListener, MyI
                 isLoading.set(false);
                 return;
             }
+
+            // Update main list on UI thread.
+            listNovelItemInfo.addAll(result);
+            numOfItemsToRefresh = result.size();
 
             // result:
             // add imageView, only here can fetch the layout2 id!!!
