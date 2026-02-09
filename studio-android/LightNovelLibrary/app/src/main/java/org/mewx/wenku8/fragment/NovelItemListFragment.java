@@ -109,10 +109,7 @@ public class NovelItemListFragment extends Fragment implements MyItemClickListen
                 .show());
 
         // init values
-        listNovelItemAid = new ArrayList<>();
-        listNovelItemInfo = new ArrayList<>();
-        currentPage = 1; // default 1
-        totalPage = 0; // default 0
+        if (totalPage == 0) currentPage = 1; // default 1
 
         mLayoutManager = new LinearLayoutManager(getActivity());
         mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
@@ -121,23 +118,32 @@ public class NovelItemListFragment extends Fragment implements MyItemClickListen
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
         mRecyclerView.setLayoutManager(mLayoutManager);
 
-        // List request
-        if(listType.equals(SEARCH_TYPE)) {
-            // update UI
-            spb = getActivity().findViewById(R.id.spb);
-            spb.progressiveStart();
-
-            // execute task
-            Toast.makeText(getActivity(),"search",Toast.LENGTH_SHORT).show();
-            AsyncGetSearchResultList asyncGetSearchResultList = new AsyncGetSearchResultList();
-            asyncGetSearchResultList.execute(searchKey);
+        // Reuse existing data if available
+        if (!listNovelItemInfo.isEmpty()) {
+            mAdapter = new NovelItemAdapterUpdate(listNovelItemInfo);
+            mAdapter.setOnItemClickListener(this);
+            mAdapter.setOnItemLongClickListener(this);
+            mRecyclerView.setAdapter(mAdapter);
         }
         else {
-            // Listener
-            mRecyclerView.addOnScrollListener(new MyOnScrollListener());
-            mRecyclerView.addOnScrollListener(new OnHidingScrollListener());
-            AsyncGetNovelItemList asyncGetNovelItemList = new AsyncGetNovelItemList();
-            asyncGetNovelItemList.execute(currentPage);
+            // List request
+            if(listType.equals(SEARCH_TYPE)) {
+                // update UI
+                spb = getActivity().findViewById(R.id.spb);
+                spb.progressiveStart();
+    
+                // execute task
+                Toast.makeText(getActivity(),"search",Toast.LENGTH_SHORT).show();
+                AsyncGetSearchResultList asyncGetSearchResultList = new AsyncGetSearchResultList();
+                asyncGetSearchResultList.execute(searchKey);
+            }
+            else {
+                // Listener
+                mRecyclerView.addOnScrollListener(new MyOnScrollListener());
+                mRecyclerView.addOnScrollListener(new OnHidingScrollListener());
+                AsyncGetNovelItemList asyncGetNovelItemList = new AsyncGetNovelItemList();
+                asyncGetNovelItemList.execute(currentPage);
+            }
         }
         return rootView;
     }
