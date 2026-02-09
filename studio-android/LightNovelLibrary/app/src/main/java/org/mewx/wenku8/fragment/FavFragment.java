@@ -51,6 +51,10 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -371,39 +375,74 @@ public class FavFragment extends Fragment implements MyItemClickListener, MyItem
             for(Integer aid : listDiff) {
                 if(!isLoading) return Wenku8Error.ErrorCode.USER_CANCELLED_TASK;
 
-                // download general file
-                String volumeXml, introXml;
+                // download general file using parallel requests
+                String volumeXml, introXml, fullIntroXml;
                 List<VolumeList> vl;
                 NovelItemMeta ni;
                 try {
-                    // fetch volumes
-                    ContentValues cv = Wenku8API.getNovelIndex(aid, GlobalConfig.getCurrentLang());
-                    byte[] tempVolumeXml = LightNetwork.LightHttpPostConnection(Wenku8API.BASE_URL, cv);
-                    if(!isLoading) return Wenku8Error.ErrorCode.USER_CANCELLED_TASK;
-                    if(tempVolumeXml == null) return Wenku8Error.ErrorCode.NETWORK_ERROR;
+                    // Create executor for parallel requests.
+                    ExecutorService executor = Executors.newFixedThreadPool(3);
+                    
+                    // Task 1: Fetch volumes.
+                    Callable<byte[]> volumeTask = () -> {
+                        if(!isLoading) return null;
+                        ContentValues cv = Wenku8API.getNovelIndex(aid, GlobalConfig.getCurrentLang());
+                        return LightNetwork.LightHttpPostConnection(Wenku8API.BASE_URL, cv);
+                    };
+                    
+                    // Task 2: Fetch intro.
+                    Callable<byte[]> introTask = () -> {
+                        if(!isLoading) return null;
+                        return LightNetwork.LightHttpPostConnection(Wenku8API.BASE_URL,
+                                Wenku8API.getNovelFullMeta(aid, GlobalConfig.getCurrentLang()));
+                    };
+                    
+                    // Task 3: Fetch full intro (needs to be done after parsing meta, so we'll do it separately)
+                    // Submit first 2 tasks.
+                    Future<byte[]> volumeFuture = executor.submit(volumeTask);
+                    Future<byte[]> introFuture = executor.submit(introTask);
+                    // Wait for results.
+                    byte[] tempVolumeXml = volumeFuture.get();
+                    byte[] tempIntroXml = introFuture.get();
+                    if(!isLoading) {
+                        executor.shutdown();
+                        return Wenku8Error.ErrorCode.USER_CANCELLED_TASK;
+                    }
+                    if(tempVolumeXml == null || tempIntroXml == null) {
+                        executor.shutdown();
+                        return Wenku8Error.ErrorCode.NETWORK_ERROR;
+                    }
+                    
+                    // Parse into structures.
                     volumeXml = new String(tempVolumeXml, "UTF-8");
-
-                    // fetch intro
-                    if(!isLoading) return Wenku8Error.ErrorCode.USER_CANCELLED_TASK;
-
-                    // use short intro
-                    byte[] tempIntroXml = LightNetwork.LightHttpPostConnection(Wenku8API.BASE_URL,
-                            Wenku8API.getNovelFullMeta(aid, GlobalConfig.getCurrentLang()));
-                    if (tempIntroXml == null) return Wenku8Error.ErrorCode.NETWORK_ERROR;
                     introXml = new String(tempIntroXml, "UTF-8");
-
-                    // parse into structures
                     vl = Wenku8Parser.getVolumeList(volumeXml);
                     ni = Wenku8Parser.parseNovelFullMeta(introXml);
-                    if (vl.isEmpty() || ni == null) return Wenku8Error.ErrorCode.XML_PARSE_FAILED;
+                    if (vl.isEmpty() || ni == null) {
+                        executor.shutdown();
+                        return Wenku8Error.ErrorCode.XML_PARSE_FAILED;
+                    }
 
-                    if(!isLoading) return Wenku8Error.ErrorCode.USER_CANCELLED_TASK;
-                    cv = Wenku8API.getNovelFullIntro(ni.aid, GlobalConfig.getCurrentLang());
-                    byte[] tempFullIntro = LightNetwork.LightHttpPostConnection(Wenku8API.BASE_URL, cv);
+                    // Now fetch full intro (depends on ni.aid from parsing).
+                    if(!isLoading) {
+                        executor.shutdown();
+                        return Wenku8Error.ErrorCode.USER_CANCELLED_TASK;
+                    }
+                    
+                    final int finalAid = ni.aid;
+                    Callable<byte[]> fullIntroTask = () -> {
+                        if(!isLoading) return null;
+                        ContentValues cv = Wenku8API.getNovelFullIntro(finalAid, GlobalConfig.getCurrentLang());
+                        return LightNetwork.LightHttpPostConnection(Wenku8API.BASE_URL, cv);
+                    };
+                    Future<byte[]> fullIntroFuture = executor.submit(fullIntroTask);
+                    byte[] tempFullIntro = fullIntroFuture.get();
+                    executor.shutdown();
+
                     if (tempFullIntro == null) return Wenku8Error.ErrorCode.NETWORK_ERROR;
                     ni.fullIntro = new String(tempFullIntro, "UTF-8");
 
-                    // write into saved file, save from volum -> meta -> add2bookshelf
+                    // Write into saved file, save from volum -> meta -> add2bookshelf.
                     GlobalConfig.writeFullFileIntoSaveFolder("intro", aid + "-volume.xml", volumeXml);
                     GlobalConfig.writeFullFileIntoSaveFolder("intro", aid + "-introfull.xml", ni.fullIntro);
                     GlobalConfig.writeFullFileIntoSaveFolder("intro", aid + "-intro.xml", introXml);
