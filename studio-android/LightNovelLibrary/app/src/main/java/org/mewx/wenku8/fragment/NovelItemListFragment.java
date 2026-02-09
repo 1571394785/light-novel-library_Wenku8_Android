@@ -323,6 +323,9 @@ public class NovelItemListFragment extends Fragment implements MyItemClickListen
 
         @Override
         protected void onPostExecute(Integer integer) {
+            // Always reset loading status first, regardless of fragment state.
+            isLoading.set(false);
+
             // Updating the results only when the fragment is attached correctly.
             if (!isAdded() || getActivity() == null) {
                 return;
@@ -338,7 +341,6 @@ public class NovelItemListFragment extends Fragment implements MyItemClickListen
             }
 
             refreshPartialIdList(tempNovelList);
-            isLoading.set(false);
 
             // TODO: remove this warning view because all traffic will come from the relay.
             View relayWarningView = getActivity().findViewById(R.id.relay_warning);

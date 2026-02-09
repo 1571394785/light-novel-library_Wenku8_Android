@@ -57,6 +57,10 @@ public class RKListFragment extends Fragment {
         // set adapter
         MyPagerAdapter adapter = new MyPagerAdapter(getChildFragmentManager());
         pager.setAdapter(adapter);
+
+        // Increase offscreen page limit to prevent frequent reloading when swiping.
+        // We set it to the total number of pages to keep everything in memory.
+        pager.setOffscreenPageLimit(adapter.getCount());
     }
 
     public class MyPagerAdapter extends FragmentPagerAdapter {
