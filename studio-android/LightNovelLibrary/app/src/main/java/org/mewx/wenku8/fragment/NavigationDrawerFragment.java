@@ -24,6 +24,9 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
+import androidx.core.graphics.Insets;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.afollestad.materialdialogs.StackingBehavior;
@@ -192,6 +195,16 @@ public class NavigationDrawerFragment extends Fragment {
         // set menu background
         bgImage = view.findViewById(R.id.bg_img);
         updateMenuBackground();
+
+        // Handle navigation bar padding.
+        LinearLayout ll = view.findViewById(R.id.main_menu_bottom_layout);
+        if (ll != null) {
+            ViewCompat.setOnApplyWindowInsetsListener(ll, (v, windowInsets) -> {
+                Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
+                v.setPadding(0, 0, 0, insets.bottom);
+                return windowInsets;
+            });
+        }
     }
 
     @Override
@@ -225,13 +238,11 @@ public class NavigationDrawerFragment extends Fragment {
                 if (!isAdded()) return;
 
                 mainActivity.invalidateOptionsMenu();
-                updateNavigationBar();
             }
         };
 
         mDrawerLayout.post(() -> mActionBarDrawerToggle.syncState());
         mDrawerLayout.addDrawerListener(mActionBarDrawerToggle);
-        updateNavigationBar();
     }
 
     private void clearOneButtonColor(int iconId, int textId, int backgroundId) {
@@ -335,26 +346,6 @@ public class NavigationDrawerFragment extends Fragment {
 
         fakeDarkSwitcher = !fakeDarkSwitcher;
         Toast.makeText(getActivity(), "夜间模式到阅读界面去试试~", Toast.LENGTH_SHORT).show();
-    }
-
-    private void updateNavigationBar() {
-        if (mainActivity == null) return;
-
-        // test navigation bar exist
-        FragmentActivity activity = getActivity();
-        Point navBar = LightTool.getNavigationBarSize(getActivity());
-
-        // TODO: fix this margin for screen cutout.
-        LinearLayout ll = mainActivity.findViewById(R.id.main_menu_bottom_layout);
-        if (activity != null && navBar.y == 0) {
-            ll.setPadding(0, 0, 0, 0); // hide
-        }
-        else if (activity != null && (navBar.y < 10 || navBar.y >= LightTool.getAppUsableScreenSize(activity).y)) {
-            ll.setPadding(0, 0, 0, LightTool.getAppUsableScreenSize(activity).y / 10);
-        }
-        else {
-            ll.setPadding(0, 0, 0, navBar.y); // show
-        }
     }
 
     @Override
