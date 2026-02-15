@@ -142,19 +142,26 @@
                 android:textColor="@color/default_white"
                 android:text="@string/reader_previous_chapter"/>
 
-            <org.adw.library.widgets.discreteseekbar.DiscreteSeekBar
+            <com.google.android.material.slider.Slider
                 android:id="@+id/reader_seekbar"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:paddingLeft="16dp"
-                android:paddingRight="16dp"
+                android:layout_height="wrap_content"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
                 android:layout_toRightOf="@+id/text_previous"
                 android:layout_toLeftOf="@+id/text_next"
                 android:layout_centerVertical="true"
-                app:dsb_indicatorColor="@color/myAccentColor"
-                app:dsb_progressColor="@color/myPrimaryColor"
-                app:dsb_trackColor="@color/default_white"
-                app:dsb_indicatorElevation="4dp"/>
+                android:valueFrom="0.0"
+                android:valueTo="1000.0"
+                android:stepSize="1.0"
+                app:labelStyle="@style/RedTooltipStyle"
+                app:trackHeight="3dp"
+                app:thumbRadius="8dp"
+                app:tickVisible="false"
+                app:labelBehavior="floating"
+                app:thumbColor="@color/myPrimaryColor"
+                app:trackColorActive="@color/myPrimaryColor"
+                app:trackColorInactive="@color/default_white" />
 
             <TextView
                 android:id="@+id/text_next"
@@ -198,7 +205,7 @@
                     android:textColor="@color/default_white"
                     android:text="@string/reader_font_size"/>
 
-                <org.adw.library.widgets.discreteseekbar.DiscreteSeekBar
+                <com.google.android.material.slider.Slider
                     android:id="@+id/reader_font_size_seeker"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -207,12 +214,17 @@
                     android:layout_toRightOf="@+id/text_font_size"
                     android:layout_toEndOf="@+id/text_font_size"
                     android:layout_centerVertical="true"
-                    app:dsb_indicatorColor="@color/myAccentColor"
-                    app:dsb_progressColor="@color/myPrimaryColor"
-                    app:dsb_trackColor="@color/default_white"
-                    app:dsb_indicatorElevation="4dp"
-                    app:dsb_min="8"
-                    app:dsb_max="32"/>
+                    android:valueFrom="8.0"
+                    android:valueTo="32.0"
+                    android:stepSize="1.0"
+                    app:labelStyle="@style/RedTooltipStyle"
+                    app:trackHeight="3dp"
+                    app:thumbRadius="8dp"
+                    app:tickVisible="false"
+                    app:labelBehavior="floating"
+                    app:thumbColor="@color/myPrimaryColor"
+                    app:trackColorActive="@color/myPrimaryColor"
+                    app:trackColorInactive="@color/default_white" />
             </RelativeLayout>
 
             <RelativeLayout
@@ -232,7 +244,7 @@
                     android:textColor="@color/default_white"
                     android:text="@string/reader_line_distance"/>
 
-                <org.adw.library.widgets.discreteseekbar.DiscreteSeekBar
+                <com.google.android.material.slider.Slider
                     android:id="@+id/reader_line_distance_seeker"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -241,12 +253,17 @@
                     android:layout_toRightOf="@+id/text_line_distance"
                     android:layout_toEndOf="@+id/text_line_distance"
                     android:layout_centerVertical="true"
-                    app:dsb_indicatorColor="@color/myAccentColor"
-                    app:dsb_progressColor="@color/myPrimaryColor"
-                    app:dsb_trackColor="@color/default_white"
-                    app:dsb_indicatorElevation="4dp"
-                    app:dsb_min="0"
-                    app:dsb_max="32"/>
+                    android:valueFrom="0.0"
+                    android:valueTo="32.0"
+                    android:stepSize="1.0"
+                    app:labelStyle="@style/RedTooltipStyle"
+                    app:trackHeight="3dp"
+                    app:thumbRadius="8dp"
+                    app:tickVisible="false"
+                    app:labelBehavior="floating"
+                    app:thumbColor="@color/myPrimaryColor"
+                    app:trackColorActive="@color/myPrimaryColor"
+                    app:trackColorInactive="@color/default_white" />
             </RelativeLayout>
 
             <RelativeLayout
@@ -266,7 +283,7 @@
                     android:textColor="@color/default_white"
                     android:text="@string/reader_paragraph_distance"/>
 
-                <org.adw.library.widgets.discreteseekbar.DiscreteSeekBar
+                <com.google.android.material.slider.Slider
                     android:id="@+id/reader_paragraph_distance_seeker"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -275,12 +292,17 @@
                     android:layout_toRightOf="@+id/text_paragraph_distance"
                     android:layout_toEndOf="@+id/text_paragraph_distance"
                     android:layout_centerVertical="true"
-                    app:dsb_indicatorColor="@color/myAccentColor"
-                    app:dsb_progressColor="@color/myPrimaryColor"
-                    app:dsb_trackColor="@color/default_white"
-                    app:dsb_indicatorElevation="4dp"
-                    app:dsb_min="0"
-                    app:dsb_max="48"/>
+                    android:valueFrom="0.0"
+                    android:valueTo="48.0"
+                    android:stepSize="1.0"
+                    app:labelStyle="@style/RedTooltipStyle"
+                    app:trackHeight="3dp"
+                    app:thumbRadius="8dp"
+                    app:tickVisible="false"
+                    app:labelBehavior="floating"
+                    app:thumbColor="@color/myPrimaryColor"
+                    app:trackColorActive="@color/myPrimaryColor"
+                    app:trackColorInactive="@color/default_white" />
             </RelativeLayout>
 
             <RelativeLayout
@@ -300,7 +322,7 @@
                     android:textColor="@color/default_white"
                     android:text="@string/reader_paragraph_edge_distance"/>
 
-                <org.adw.library.widgets.discreteseekbar.DiscreteSeekBar
+                <com.google.android.material.slider.Slider
                     android:id="@+id/reader_paragraph_edge_distance_seeker"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -309,12 +331,17 @@
                     android:layout_toRightOf="@+id/text_paragraph_edge_distance"
                     android:layout_toEndOf="@+id/text_paragraph_edge_distance"
                     android:layout_centerVertical="true"
-                    app:dsb_indicatorColor="@color/myAccentColor"
-                    app:dsb_progressColor="@color/myPrimaryColor"
-                    app:dsb_trackColor="@color/default_white"
-                    app:dsb_indicatorElevation="4dp"
-                    app:dsb_min="0"
-                    app:dsb_max="32"/>
+                    android:valueFrom="0.0"
+                    android:valueTo="32.0"
+                    android:stepSize="1.0"
+                    app:labelStyle="@style/RedTooltipStyle"
+                    app:trackHeight="3dp"
+                    app:thumbRadius="8dp"
+                    app:tickVisible="false"
+                    app:labelBehavior="floating"
+                    app:thumbColor="@color/myPrimaryColor"
+                    app:trackColorActive="@color/myPrimaryColor"
+                    app:trackColorInactive="@color/default_white" />
             </RelativeLayout>
 
             <LinearLayout

@@ -33,7 +33,7 @@ import com.afollestad.materialdialogs.Theme;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
-import org.adw.library.widgets.discreteseekbar.DiscreteSeekBar;
+import com.google.android.material.slider.Slider;
 import org.mewx.wenku8.R;
 import org.mewx.wenku8.activity.BaseMaterialActivity;
 import org.mewx.wenku8.global.GlobalConfig;
@@ -516,20 +516,18 @@ public class Wenku8ReaderActivityV1 extends BaseMaterialActivity {
                                             findViewById(R.id.reader_bot_seeker).setVisibility(View.INVISIBLE);
                                         isOpen = !isOpen;
 
-                                        DiscreteSeekBar seeker = findViewById(R.id.reader_seekbar);
-                                        seeker.setMin(1);
-                                        seeker.setProgress(mSlidingPageAdapter.getCurrentFirstLineIndex() + 1); // bug here
-                                        seeker.setMax(loader.getElementCount());
-                                        seeker.setOnProgressChangeListener(new DiscreteSeekBar.OnProgressChangeListener() {
+                                        Slider seeker = findViewById(R.id.reader_seekbar);
+                                        seeker.setValueFrom(1.0f);
+                                        seeker.setValueTo((float) Math.max(1.0, loader.getElementCount())); // Ensure valueTo >= valueFrom
+                                        seeker.setValue((float) Math.min(seeker.getValueTo(), mSlidingPageAdapter.getCurrentFirstLineIndex() + 1));
+                                        
+                                        seeker.addOnSliderTouchListener(new Slider.OnSliderTouchListener() {
                                             @Override
-                                            public void onProgressChanged(DiscreteSeekBar discreteSeekBar, int i, boolean b) { }
+                                            public void onStartTrackingTouch(@NonNull Slider slider) { }
 
                                             @Override
-                                            public void onStartTrackingTouch(DiscreteSeekBar discreteSeekBar) { }
-
-                                            @Override
-                                            public void onStopTrackingTouch(DiscreteSeekBar discreteSeekBar) {
-                                                mSlidingPageAdapter.setCurrentIndex(discreteSeekBar.getProgress() - 1, 0);
+                                            public void onStopTrackingTouch(@NonNull Slider slider) {
+                                                mSlidingPageAdapter.setCurrentIndex((int) slider.getValue() - 1, 0);
                                                 mSlidingPageAdapter.restoreState(null, null);
                                                 mSlidingPageAdapter.notifyDataSetChanged();
                                             }
@@ -567,73 +565,61 @@ public class Wenku8ReaderActivityV1 extends BaseMaterialActivity {
                                         isOpen = !isOpen;
 
                                         // set all listeners
-                                        DiscreteSeekBar seekerFontSize = findViewById(R.id.reader_font_size_seeker),
+                                        Slider seekerFontSize = findViewById(R.id.reader_font_size_seeker),
                                                 seekerLineDistance = findViewById(R.id.reader_line_distance_seeker),
                                                 seekerParagraphDistance = findViewById(R.id.reader_paragraph_distance_seeker),
                                                 seekerParagraphEdgeDistance = findViewById(R.id.reader_paragraph_edge_distance_seeker);
 
-                                        seekerFontSize.setProgress(setting.getFontSize());
-                                        seekerFontSize.setOnProgressChangeListener(new DiscreteSeekBar.OnProgressChangeListener() {
+                                        seekerFontSize.setValue((float) setting.getFontSize());
+                                        seekerFontSize.addOnSliderTouchListener(new Slider.OnSliderTouchListener() {
                                             @Override
-                                            public void onProgressChanged(DiscreteSeekBar discreteSeekBar, int i, boolean b) { }
+                                            public void onStartTrackingTouch(@NonNull Slider slider) { }
 
                                             @Override
-                                            public void onStartTrackingTouch(DiscreteSeekBar discreteSeekBar) { }
-
-                                            @Override
-                                            public void onStopTrackingTouch(DiscreteSeekBar discreteSeekBar) {
-                                                setting.setFontSize(discreteSeekBar.getProgress());
+                                            public void onStopTrackingTouch(@NonNull Slider slider) {
+                                                setting.setFontSize((int) slider.getValue());
                                                 WenkuReaderPageView.setViewComponents(loader, setting, false);
                                                 mSlidingPageAdapter.restoreState(null, null);
                                                 mSlidingPageAdapter.notifyDataSetChanged();
                                             }
                                         });
 
-                                        seekerLineDistance.setProgress(setting.getLineDistance());
-                                        seekerLineDistance.setOnProgressChangeListener(new DiscreteSeekBar.OnProgressChangeListener() {
+                                        seekerLineDistance.setValue((float) setting.getLineDistance());
+                                        seekerLineDistance.addOnSliderTouchListener(new Slider.OnSliderTouchListener() {
                                             @Override
-                                            public void onProgressChanged(DiscreteSeekBar discreteSeekBar, int i, boolean b) { }
+                                            public void onStartTrackingTouch(@NonNull Slider slider) { }
 
                                             @Override
-                                            public void onStartTrackingTouch(DiscreteSeekBar discreteSeekBar) { }
-
-                                            @Override
-                                            public void onStopTrackingTouch(DiscreteSeekBar discreteSeekBar) {
-                                                setting.setLineDistance(discreteSeekBar.getProgress());
+                                            public void onStopTrackingTouch(@NonNull Slider slider) {
+                                                setting.setLineDistance((int) slider.getValue());
                                                 WenkuReaderPageView.setViewComponents(loader, setting, false);
                                                 mSlidingPageAdapter.restoreState(null, null);
                                                 mSlidingPageAdapter.notifyDataSetChanged();
                                             }
                                         });
 
-                                        seekerParagraphDistance.setProgress(setting.getParagraphDistance());
-                                        seekerParagraphDistance.setOnProgressChangeListener(new DiscreteSeekBar.OnProgressChangeListener() {
+                                        seekerParagraphDistance.setValue((float) setting.getParagraphDistance());
+                                        seekerParagraphDistance.addOnSliderTouchListener(new Slider.OnSliderTouchListener() {
                                             @Override
-                                            public void onProgressChanged(DiscreteSeekBar discreteSeekBar, int i, boolean b) { }
+                                            public void onStartTrackingTouch(@NonNull Slider slider) { }
 
                                             @Override
-                                            public void onStartTrackingTouch(DiscreteSeekBar discreteSeekBar) { }
-
-                                            @Override
-                                            public void onStopTrackingTouch(DiscreteSeekBar discreteSeekBar) {
-                                                setting.setParagraphDistance(discreteSeekBar.getProgress());
+                                            public void onStopTrackingTouch(@NonNull Slider slider) {
+                                                setting.setParagraphDistance((int) slider.getValue());
                                                 WenkuReaderPageView.setViewComponents(loader, setting, false);
                                                 mSlidingPageAdapter.restoreState(null, null);
                                                 mSlidingPageAdapter.notifyDataSetChanged();
                                             }
                                         });
 
-                                        seekerParagraphEdgeDistance.setProgress(setting.getPageEdgeDistance());
-                                        seekerParagraphEdgeDistance.setOnProgressChangeListener(new DiscreteSeekBar.OnProgressChangeListener() {
+                                        seekerParagraphEdgeDistance.setValue((float) setting.getPageEdgeDistance());
+                                        seekerParagraphEdgeDistance.addOnSliderTouchListener(new Slider.OnSliderTouchListener() {
                                             @Override
-                                            public void onProgressChanged(DiscreteSeekBar discreteSeekBar, int i, boolean b) { }
+                                            public void onStartTrackingTouch(@NonNull Slider slider) { }
 
                                             @Override
-                                            public void onStartTrackingTouch(DiscreteSeekBar discreteSeekBar) { }
-
-                                            @Override
-                                            public void onStopTrackingTouch(DiscreteSeekBar discreteSeekBar) {
-                                                setting.setPageEdgeDistance(discreteSeekBar.getProgress());
+                                            public void onStopTrackingTouch(@NonNull Slider slider) {
+                                                setting.setPageEdgeDistance((int) slider.getValue());
                                                 WenkuReaderPageView.setViewComponents(loader, setting, false);
                                                 mSlidingPageAdapter.restoreState(null, null);
                                                 mSlidingPageAdapter.notifyDataSetChanged();
