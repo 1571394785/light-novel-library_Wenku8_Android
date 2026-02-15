@@ -107,6 +107,7 @@
     <string name="dialog_content_sure_to_logout">確定要解除契約嗎，魔法師？</string>
     <string name="dialog_content_sync">正在同步書架（雙向）……\n點擊其他區域可以取消~</string>
     <string name="dialog_content_novel_title">小說完整標題</string>
+    <string name="dialog_content_volume_title">分卷完整標題</string>
     <string name="dialog_content_novel_remove_from_cloud">正在從雲端書架移除……</string>
     <string name="dialog_content_saved_path">已選擇的路徑：\n</string>
     <string name="dialog_content_force_write_file">確定要覆蓋文件嗎？</string>

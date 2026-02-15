@@ -128,6 +128,7 @@
     <string name="dialog_content_sure_to_logout">确定要解除契约吗，魔法师？</string>
     <string name="dialog_content_sync">正在同步书架（双向）……\n点击其他区域可以取消~</string>
     <string name="dialog_content_novel_title">小说完整标题</string>
+    <string name="dialog_content_volume_title">分卷完整标题</string>
     <string name="dialog_content_novel_remove_from_cloud">正在从云端书架移除……</string>
     <string name="dialog_content_saved_path">已选择的路径：\n</string>
     <string name="dialog_content_wrong_path">路径似乎不正确呢：\n%s\n是否重新选择？\n\n（注意：选择了“永远不要升级”后，可以通过清空app的存储，然后重新开始升级。）</string>

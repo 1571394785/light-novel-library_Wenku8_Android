@@ -355,6 +355,22 @@ public class NovelInfoActivity extends BaseMaterialActivity {
             else
                 Toast.makeText(this, getResources().getText(R.string.reader_msg_please_refresh_and_retry), Toast.LENGTH_SHORT).show();
         });
+
+        mSideSheetHeader.setOnClickListener(v -> {
+            if (mCurrentSelectedVolume == null) return;
+
+            new MaterialDialog.Builder(NovelInfoActivity.this)
+                    .theme(Theme.LIGHT)
+                    .titleColorRes(R.color.dlgTitleColor)
+                    .backgroundColorRes(R.color.dlgBackgroundColor)
+                    .contentColorRes(R.color.dlgContentColor)
+                    .positiveColorRes(R.color.dlgPositiveButtonColor)
+                    .title(R.string.dialog_content_volume_title)
+                    .content(mCurrentSelectedVolume.volumeName)
+                    .contentGravity(GravityEnum.CENTER)
+                    .positiveText(R.string.dialog_positive_known)
+                    .show();
+        });
     }
 
     /**

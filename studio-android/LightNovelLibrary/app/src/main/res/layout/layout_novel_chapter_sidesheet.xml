@@ -10,7 +10,7 @@
         android:id="@+id/side_sheet_header"
         android:layout_width="match_parent"
         android:layout_height="?android:attr/actionBarSize"
-        android:background="@color/myPrimaryColor"
+        android:background="@drawable/btn_side_sheet_header"
         android:gravity="center_vertical"
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
@@ -18,7 +18,9 @@
         android:textColor="@color/default_white"
         android:textSize="20sp"
         android:maxLines="1"
-        android:ellipsize="end" />
+        android:ellipsize="end"
+        android:clickable="true"
+        android:focusable="true" />
 
     <ScrollView
         android:layout_width="match_parent"
