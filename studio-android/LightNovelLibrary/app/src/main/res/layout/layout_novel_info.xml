@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:spb="http://schemas.android.com/apk/res-auto"
-    xmlns:card-view="http://schemas.android.com/apk/res-auto"
-    xmlns:fab="http://schemas.android.com/apk/res-auto"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:ads="http://schemas.android.com/apk/res-auto"
     android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
@@ -42,10 +40,10 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:clickable="true"
-                        card-view:cardBackgroundColor="@color/novel_item_white"
-                        card-view:cardElevation="2dp"
-                        card-view:cardUseCompatPadding="true"
-                        card-view:cardMaxElevation="2dp">
+                        app:cardBackgroundColor="@color/novel_item_white"
+                        app:cardElevation="2dp"
+                        app:cardUseCompatPadding="true"
+                        app:cardMaxElevation="2dp">
 
                         <TextView
                             android:id="@+id/novel_intro_full"
@@ -87,46 +85,59 @@
             android:layout_height="4dp"
             android:layout_below="@id/toolbar_actionbar"
             android:indeterminate="true"
-            spb:indeterminateAnimationType="disjoint" />
+            app:indeterminateAnimationType="disjoint" />
 
         <!-- Floating action button -->
-        <com.getbase.floatingactionbutton.FloatingActionsMenu
-            android:id="@+id/multiple_actions"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
+        <LinearLayout
+            android:id="@+id/fab_container"
+            android:theme="@style/Theme.MaterialComponents.Light.NoActionBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_above="@+id/ad_view"
             android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true"
-            fab:fab_addButtonColorNormal="@color/fabRed"
-            fab:fab_addButtonColorPressed="@color/fabRedPressed"
-            fab:fab_addButtonPlusIconColor="@color/myTextPrimaryColor"
-            fab:fab_labelStyle="@style/menu_labels_style"
-            android:layout_marginBottom="0dp"
-            android:layout_marginRight="0dp"
-            android:layout_marginEnd="0dp">
+            android:layout_marginRight="4dp"
+            android:layout_marginEnd="4dp"
+            android:layout_marginBottom="4dp"
+            android:padding="16dp"
+            android:clipChildren="false"
+            android:clipToPadding="false"
+            android:gravity="end"
+            android:orientation="vertical">
 
-            <com.getbase.floatingactionbutton.FloatingActionButton
+            <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
                 android:id="@+id/fab_favorate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                fab:fab_size="mini"
-                fab:fab_icon="@drawable/ic_favorate"
-                fab:fab_plusIconColor="@color/myTextPrimaryColor"
-                fab:fab_title="@string/fab_favorate"
-                fab:fab_colorNormal="@color/fabYellow"
-                fab:fab_colorPressed="@color/fabYellowPressed"/>
+                android:layout_marginBottom="12dp"
+                android:text="@string/fab_favorate"
+                android:visibility="gone"
+                android:textColor="@color/default_white"
+                app:icon="@drawable/ic_favorate"
+                app:backgroundTint="@color/fabYellow"
+                app:iconTint="@color/default_white" />
 
-            <com.getbase.floatingactionbutton.FloatingActionButton
+            <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
                 android:id="@+id/fab_download"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                fab:fab_size="mini"
-                fab:fab_icon="@drawable/ic_download"
-                fab:fab_plusIconColor="@color/myTextPrimaryColor"
-                fab:fab_title="@string/fab_download"
-                fab:fab_colorNormal="@color/fabGreen"
-                fab:fab_colorPressed="@color/fabGreenPressed"/>
-        </com.getbase.floatingactionbutton.FloatingActionsMenu>
+                android:layout_marginBottom="12dp"
+                android:text="@string/fab_download"
+                android:visibility="gone"
+                android:textColor="@color/default_white"
+                app:icon="@drawable/ic_download"
+                app:backgroundTint="@color/fabGreen"
+                app:iconTint="@color/default_white" />
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/multiple_actions"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/default_white"
+                app:srcCompat="@drawable/ic_svg_add_white"
+                app:backgroundTint="@color/fabRed"
+                app:tint="@color/default_white" />
+        </LinearLayout>
 
         <com.google.android.gms.ads.AdView
             android:id="@+id/ad_view"

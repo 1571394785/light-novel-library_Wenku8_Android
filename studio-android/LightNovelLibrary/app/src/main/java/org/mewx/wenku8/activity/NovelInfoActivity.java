@@ -1,6 +1,7 @@
 package org.mewx.wenku8.activity;
 
 import android.content.ContentValues;
+import android.content.res.ColorStateList;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -30,8 +31,8 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import com.afollestad.materialdialogs.GravityEnum;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.afollestad.materialdialogs.Theme;
-import com.getbase.floatingactionbutton.FloatingActionButton;
-import com.getbase.floatingactionbutton.FloatingActionsMenu;
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.firebase.analytics.FirebaseAnalytics;
@@ -63,6 +64,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import com.google.android.material.progressindicator.LinearProgressIndicator;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Created by MewX on 2015/5/13.
@@ -91,8 +93,10 @@ public class NovelInfoActivity extends BaseMaterialActivity {
     private TextView tvLatestChapter = null;
     private TextView tvNovelFullIntro = null;
     private MaterialDialog pDialog = null;
-    private FloatingActionButton fabFavorite = null;
-    private FloatingActionsMenu famMenu = null;
+    private ExtendedFloatingActionButton fabFavorite = null;
+    private ExtendedFloatingActionButton fabDownload = null;
+    private FloatingActionButton fabMenu = null;
+    private AtomicBoolean isMenuExpanded = new AtomicBoolean(false);
     private LinearProgressIndicator spb = null;
     private NovelItemMeta mNovelItemMeta = null;
     private List<VolumeList> listVolume = new ArrayList<>();
@@ -114,8 +118,8 @@ public class NovelInfoActivity extends BaseMaterialActivity {
             public void handleOnBackPressed() {
                 if (mDrawerLayout.isDrawerOpen(GravityCompat.END)) {
                     mDrawerLayout.closeDrawer(GravityCompat.END);
-                } else if (famMenu.isExpanded()) {
-                    famMenu.collapse();
+                } else if (isMenuExpanded.get()) {
+                    collapseMenu();
                 } else {
                     // Normal exit
                     finishAfterTransition();
@@ -161,8 +165,8 @@ public class NovelInfoActivity extends BaseMaterialActivity {
         tvNovelFullIntro = findViewById(R.id.novel_intro_full);
         ImageButton ibNovelOption = findViewById(R.id.novel_option);
         fabFavorite = findViewById(R.id.fab_favorate);
-        FloatingActionButton fabDownload = findViewById(R.id.fab_download);
-        famMenu = findViewById(R.id.multiple_actions);
+        fabDownload = findViewById(R.id.fab_download);
+        fabMenu = findViewById(R.id.multiple_actions);
         spb = findViewById(R.id.spb);
 
         // AdMob
@@ -181,11 +185,10 @@ public class NovelInfoActivity extends BaseMaterialActivity {
             ImageLoader.getInstance().displayImage(Wenku8API.getCoverURL(aid), ivNovelCover); // move to onCreateView!
         tvLatestChapterNameText.setText(getResources().getText(R.string.novel_item_latest_chapter));
         ibNovelOption.setVisibility(ImageButton.INVISIBLE);
-        fabFavorite.setColorFilter(getResources().getColor(R.color.default_white), PorterDuff.Mode.SRC_ATOP);
-        fabDownload.setColorFilter(getResources().getColor(R.color.default_white), PorterDuff.Mode.SRC_ATOP);
         llCardLayout.setBackgroundResource(R.color.menu_transparent);
         if (GlobalConfig.testInLocalBookshelf(aid)) {
-            fabFavorite.setIcon(R.drawable.ic_favorate_pressed);
+            fabFavorite.setIcon(getResources().getDrawable(R.drawable.ic_favorate_pressed));
+            fabFavorite.setIconTint(null);
         }
 
         // fetch all info
@@ -202,21 +205,11 @@ public class NovelInfoActivity extends BaseMaterialActivity {
 
 
         // set on click listeners
-        famMenu.setOnFloatingActionsMenuUpdateListener(new FloatingActionsMenu.OnFloatingActionsMenuUpdateListener() {
-            @Override
-            public void onMenuExpanded() {
-                rlMask.setVisibility(View.VISIBLE);
-            }
-
-            @Override
-            public void onMenuCollapsed() {
-                rlMask.setVisibility(View.INVISIBLE);
-            }
-        });
+        fabMenu.setOnClickListener(v -> toggleMenu());
         rlMask.setOnClickListener(v -> {
             // Collapse the fam
-            if (famMenu.isExpanded())
-                famMenu.collapse();
+            if (isMenuExpanded.get())
+                collapseMenu();
         });
         tvNovelTitle.setBackground(getResources().getDrawable(R.drawable.btn_menu_item));
         tvNovelAuthor.setBackground(getResources().getDrawable(R.drawable.btn_menu_item));
@@ -298,7 +291,8 @@ public class NovelInfoActivity extends BaseMaterialActivity {
                     GlobalConfig.addToLocalBookshelf(aid);
                     if (GlobalConfig.testInLocalBookshelf(aid)) { // in
                         Toast.makeText(NovelInfoActivity.this, getResources().getString(R.string.bookshelf_added), Toast.LENGTH_SHORT).show();
-                        fabFavorite.setIcon(R.drawable.ic_favorate_pressed);
+                        fabFavorite.setIcon(getResources().getDrawable(R.drawable.ic_favorate_pressed));
+                        fabFavorite.setIconTint(null);
                     } else {
                         Toast.makeText(NovelInfoActivity.this, getResources().getString(R.string.bookshelf_error), Toast.LENGTH_SHORT).show();
                     }
@@ -722,6 +716,30 @@ public class NovelInfoActivity extends BaseMaterialActivity {
         }
     }
 
+    private void toggleMenu() {
+        if (isMenuExpanded.get()) {
+            collapseMenu();
+        } else {
+            expandMenu();
+        }
+    }
+
+    private void expandMenu() {
+        isMenuExpanded.set(true);
+        fabMenu.setImageResource(R.drawable.ic_svg_close_white);
+        fabFavorite.show();
+        fabDownload.show();
+        rlMask.setVisibility(View.VISIBLE);
+    }
+
+    private void collapseMenu() {
+        isMenuExpanded.set(false);
+        fabMenu.setImageResource(R.drawable.ic_svg_add_white);
+        fabFavorite.hide();
+        fabDownload.hide();
+        rlMask.setVisibility(View.INVISIBLE);
+    }
+
     private void buildVolumeList() {
       // remove all TextView(in CardView, in RelativeView)
       if(mLinearLayout.getChildCount() >= 3)
@@ -1090,8 +1108,10 @@ public class NovelInfoActivity extends BaseMaterialActivity {
             md.dismiss();
             if(err == Wenku8Error.ErrorCode.SYSTEM_1_SUCCEEDED) {
                 Toast.makeText(NovelInfoActivity.this, getResources().getString(R.string.bookshelf_removed), Toast.LENGTH_SHORT).show();
-                if(fabFavorite != null)
-                    fabFavorite.setIcon(R.drawable.ic_favorate);
+                if(fabFavorite != null) {
+                    fabFavorite.setIcon(getResources().getDrawable(R.drawable.ic_favorate));
+                    fabFavorite.setIconTint(ColorStateList.valueOf(getResources().getColor(R.color.default_white)));
+                }
             }
             else
                 Toast.makeText(NovelInfoActivity.this, err.toString(), Toast.LENGTH_SHORT).show();
