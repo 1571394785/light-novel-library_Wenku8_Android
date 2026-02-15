@@ -62,7 +62,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import fr.castorflex.android.smoothprogressbar.SmoothProgressBar;
+import com.google.android.material.progressindicator.LinearProgressIndicator;
 
 /**
  * Created by MewX on 2015/5/13.
@@ -93,7 +93,7 @@ public class NovelInfoActivity extends BaseMaterialActivity {
     private MaterialDialog pDialog = null;
     private FloatingActionButton fabFavorite = null;
     private FloatingActionsMenu famMenu = null;
-    private SmoothProgressBar spb = null;
+    private LinearProgressIndicator spb = null;
     private NovelItemMeta mNovelItemMeta = null;
     private List<VolumeList> listVolume = new ArrayList<>();
     private String novelFullMeta = null, novelFullIntro = null, novelFullVolume = null;
@@ -690,7 +690,7 @@ public class NovelInfoActivity extends BaseMaterialActivity {
         @Override
         protected void onPostExecute(Integer integer) {
             isLoading = false;
-            spb.progressiveStop();
+            spb.setVisibility(View.INVISIBLE);
             super.onPostExecute(integer);
 
             if (integer == -1) {
@@ -1249,14 +1249,14 @@ public class NovelInfoActivity extends BaseMaterialActivity {
 
     private void refreshInfoFromLocal() {
         isLoading = true;
-        spb.progressiveStart();
+        spb.setVisibility(View.VISIBLE);
         FetchInfoAsyncTask fetchInfoAsyncTask = new FetchInfoAsyncTask();
         fetchInfoAsyncTask.execute(1); // load from local
     }
 
     private void refreshInfoFromCloud() {
         isLoading = true;
-        spb.progressiveStart();
+        spb.setVisibility(View.VISIBLE);
         FetchInfoAsyncTask fetchInfoAsyncTask = new FetchInfoAsyncTask();
         fetchInfoAsyncTask.execute();
     }

@@ -46,7 +46,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import fr.castorflex.android.smoothprogressbar.SmoothProgressBar;
+import com.google.android.material.progressindicator.LinearProgressIndicator;
 
 public class NovelItemListFragment extends Fragment implements MyItemClickListener, MyItemLongClickListener {
 
@@ -60,7 +60,7 @@ public class NovelItemListFragment extends Fragment implements MyItemClickListen
     private ActionBar actionBar = null;
     private LinearLayoutManager mLayoutManager = null;
     private RecyclerView mRecyclerView = null;
-    private SmoothProgressBar spb = null;
+    private LinearProgressIndicator spb = null;
 
     // novel list info
     private List<Integer> listNovelItemAid = new ArrayList<>(); // aid list
@@ -130,7 +130,7 @@ public class NovelItemListFragment extends Fragment implements MyItemClickListen
             if(listType.equals(SEARCH_TYPE)) {
                 // update UI
                 spb = getActivity().findViewById(R.id.spb);
-                spb.progressiveStart();
+                spb.setVisibility(View.VISIBLE);
     
                 // execute task
                 Toast.makeText(getActivity(),"search",Toast.LENGTH_SHORT).show();
@@ -414,7 +414,7 @@ public class NovelItemListFragment extends Fragment implements MyItemClickListen
                 return;
             }
 
-            spb.progressiveStop();
+            spb.setVisibility(View.INVISIBLE);
             if(integer == -1) {
                 Toast.makeText(getActivity(), getResources().getString(R.string.system_network_error),Toast.LENGTH_LONG).show();
                 return;

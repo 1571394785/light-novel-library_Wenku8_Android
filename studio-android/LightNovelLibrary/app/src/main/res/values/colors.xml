@@ -65,14 +65,6 @@
     <color name="yellow">#FFF7D23E</color>
     <color name="green">#FF34A350</color>
 
-    <!-- Smooth Progress Bar Color -->
-    <integer-array name="gplus_colors">
-        <item>@color/red</item>
-        <item>@color/blue</item>
-        <item>@color/yellow</item>
-        <item>@color/green</item>
-    </integer-array>
-
     <!-- Login UI Color -->
     <color name="login_hint_text">#999999</color>
     <color name="login_input_text">#4D4D4D</color>
