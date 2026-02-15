@@ -744,16 +744,33 @@ public class NovelInfoActivity extends BaseMaterialActivity {
     private void expandMenu() {
         isMenuExpanded.set(true);
         fabMenu.animate().rotation(135f).setDuration(300).setInterpolator(new OvershootInterpolator()).start();
-        fabFavorite.show();
-        fabDownload.show();
+        
+        // Favorite FAB
+        fabFavorite.setVisibility(View.VISIBLE);
+        fabFavorite.setAlpha(0f);
+        fabFavorite.setScaleX(0f);
+        fabFavorite.setScaleY(0f);
+        fabFavorite.setTranslationY(100f);
+        fabFavorite.animate().alpha(1f).scaleX(1f).scaleY(1f).translationY(0f).setDuration(300).setInterpolator(new OvershootInterpolator()).start();
+        
+        // Download FAB
+        fabDownload.setVisibility(View.VISIBLE);
+        fabDownload.setAlpha(0f);
+        fabDownload.setScaleX(0f);
+        fabDownload.setScaleY(0f);
+        fabDownload.setTranslationY(50f);
+        fabDownload.animate().alpha(1f).scaleX(1f).scaleY(1f).translationY(0f).setDuration(300).setInterpolator(new OvershootInterpolator()).start();
+        
         rlMask.setVisibility(View.VISIBLE);
     }
 
     private void collapseMenu() {
         isMenuExpanded.set(false);
         fabMenu.animate().rotation(0f).setDuration(300).setInterpolator(new OvershootInterpolator()).start();
-        fabFavorite.hide();
-        fabDownload.hide();
+        
+        fabFavorite.animate().alpha(0f).scaleX(0f).scaleY(0f).translationY(100f).setDuration(300).withEndAction(() -> fabFavorite.setVisibility(View.GONE)).start();
+        fabDownload.animate().alpha(0f).scaleX(0f).scaleY(0f).translationY(50f).setDuration(300).withEndAction(() -> fabDownload.setVisibility(View.GONE)).start();
+        
         rlMask.setVisibility(View.INVISIBLE);
     }
 
