@@ -121,16 +121,5 @@
             android:label="@string/action_about"
             android:screenOrientation="unspecified">
         </activity>
-
-        <!-- Directory Picker Activity-->
-        <activity
-            android:name="com.nononsenseapps.filepicker.FilePickerActivity"
-            android:theme="@style/FilePickerTheme"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.GET_CONTENT" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
     </application>
 </manifest>

@@ -31,7 +31,6 @@ import com.afollestad.materialdialogs.GravityEnum;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.afollestad.materialdialogs.Theme;
 import com.google.firebase.analytics.FirebaseAnalytics;
-import com.nononsenseapps.filepicker.FilePickerActivity;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
 import org.adw.library.widgets.discreteseekbar.DiscreteSeekBar;
@@ -68,8 +67,6 @@ public class Wenku8ReaderActivityV1 extends BaseMaterialActivity {
     // constant
     static private final String FromLocal = "fav";
 
-    private static final int REQUEST_FONT_PICKER_LEGACY = 0;
-    private static final int REQUEST_IMAGE_PICKER_LEGACY = 1;
     private static final int REQUEST_FONT_PICKER = 100;
     private static final int REQUEST_IMAGE_PICKER = 101;
 
@@ -921,39 +918,7 @@ public class Wenku8ReaderActivityV1 extends BaseMaterialActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == REQUEST_FONT_PICKER_LEGACY && resultCode == Activity.RESULT_OK) {
-            // get ttf path
-            if (data.getBooleanExtra(FilePickerActivity.EXTRA_ALLOW_MULTIPLE, false)) {
-                ClipData clip = data.getClipData();
-                if (clip != null) {
-                    for (int i = 0; i < clip.getItemCount(); i++) {
-                        Uri uri = clip.getItemAt(i).getUri();
-                        // Do something with the URI
-                        runSaveCustomFontPath(uri.toString().replaceAll("file://", ""));
-                    }
-                }
-            } else {
-                Uri uri = data.getData();
-                // Do something with the URI
-                runSaveCustomFontPath(uri.toString().replaceAll("file://", ""));
-            }
-        } else if (requestCode == REQUEST_IMAGE_PICKER_LEGACY && resultCode == Activity.RESULT_OK) {
-            // get image path
-            if (data.getBooleanExtra(FilePickerActivity.EXTRA_ALLOW_MULTIPLE, false)) {
-                ClipData clip = data.getClipData();
-                if (clip != null) {
-                    for (int i = 0; i < clip.getItemCount(); i++) {
-                        Uri uri = clip.getItemAt(i).getUri();
-                        // Do something with the URI
-                        runSaveCustomBackgroundPath(uri.toString().replaceAll("file://", ""));
-                    }
-                }
-            } else {
-                Uri uri = data.getData();
-                // Do something with the URI
-                runSaveCustomBackgroundPath(uri.toString().replaceAll("file://", ""));
-            }
-        } else if (requestCode == REQUEST_FONT_PICKER && resultCode == Activity.RESULT_OK && data != null) {
+        if (requestCode == REQUEST_FONT_PICKER && resultCode == Activity.RESULT_OK && data != null) {
             Uri fontUri = data.getData();
             String copiedFilePath = GlobalConfig.getDefaultStoragePath() + GlobalConfig.customFolderName + File.separator + "reader_font";
             try {
