@@ -79,6 +79,7 @@ public class Wenku8ReaderActivityV1 extends BaseMaterialActivity {
     private List<OldNovelContentParser.NovelContent> nc = new ArrayList<>();
     private RelativeLayout mSliderHolder;
     private SlidingLayout sl;
+    private MenuItem actionWatchImage;
 //    private int tempNavBarHeight;
 
     // components
@@ -145,6 +146,7 @@ public class Wenku8ReaderActivityV1 extends BaseMaterialActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_reader_v1, menu);
+        actionWatchImage = menu.findItem(R.id.action_watch_image);
 
         Drawable drawable = menu.getItem(0).getIcon();
         if (drawable != null) {
@@ -153,6 +155,12 @@ public class Wenku8ReaderActivityV1 extends BaseMaterialActivity {
         }
 
         return true;
+    }
+
+    private void updateActionWatchImageVisibility(WenkuReaderPageView pageView) {
+        if (actionWatchImage != null && pageView != null) {
+            actionWatchImage.setVisible(pageView.hasImageInPage());
+        }
     }
 
     @Override
@@ -776,6 +784,18 @@ public class Wenku8ReaderActivityV1 extends BaseMaterialActivity {
                     }
                 }
             });
+            sl.setOnSlideChangeListener(new SlidingLayout.OnSlideChangeListener() {
+                @Override
+                public void onSlideScrollStateChanged(int touchResult) { }
+
+                @Override
+                public void onSlideSelected(Object obj) {
+                    if (obj instanceof WenkuReaderPageView) {
+                        updateActionWatchImageVisibility((WenkuReaderPageView) obj);
+                    }
+                }
+            });
+            sl.slideSelected(mSlidingPageAdapter.getCurrent());
             mSliderHolder.addView(sl, 0, lp);
             Log.d("MewX", "-- slider创建完毕");
 

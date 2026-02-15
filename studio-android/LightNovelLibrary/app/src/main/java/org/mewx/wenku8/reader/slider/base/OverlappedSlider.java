@@ -222,6 +222,8 @@ public class OverlappedSlider extends BaseSlider {
             newNextView.scrollTo(0, 0);
         }
 
+        mSlidingLayout.slideSelected(getAdapter().getCurrent());
+
         return true;
     }
 

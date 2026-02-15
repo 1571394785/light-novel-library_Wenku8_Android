@@ -447,6 +447,7 @@ public class WenkuReaderPageView extends View {
 
     public void watchImageDetailed(Activity activity) {
         if(bitmapInfoList == null || bitmapInfoList.isEmpty() || bitmapInfoList.get(0).bm == null) {
+            // This should now be impossible to reach because we've already conditionally show the action_watch_image menu.
             Toast.makeText(getContext(), getResources().getString(R.string.reader_view_image_no_image), Toast.LENGTH_SHORT).show();
         }
         else {
@@ -455,5 +456,17 @@ public class WenkuReaderPageView extends View {
             activity.startActivity(intent);
             activity.overridePendingTransition(R.anim.fade_in, R.anim.hold); // fade in animation
         }
+    }
+
+    public boolean hasImageInPage() {
+        if (paginator == null || paginator.getLineInfoList() == null) {
+            return false;
+        }
+        for (LineInfo li : paginator.getLineInfoList()) {
+            if (li.type() == WenkuReaderLoader.ElementType.IMAGE_DEPENDENT || li.type() == WenkuReaderLoader.ElementType.IMAGE_INDEPENDENT) {
+                return true;
+            }
+        }
+        return false;
     }
 }
