@@ -28,6 +28,7 @@ import androidx.activity.OnBackPressedCallback;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
+import android.view.animation.OvershootInterpolator;
 import com.afollestad.materialdialogs.GravityEnum;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.afollestad.materialdialogs.Theme;
@@ -726,7 +727,7 @@ public class NovelInfoActivity extends BaseMaterialActivity {
 
     private void expandMenu() {
         isMenuExpanded.set(true);
-        fabMenu.setImageResource(R.drawable.ic_svg_close_white);
+        fabMenu.animate().rotation(135f).setDuration(300).setInterpolator(new OvershootInterpolator()).start();
         fabFavorite.show();
         fabDownload.show();
         rlMask.setVisibility(View.VISIBLE);
@@ -734,7 +735,7 @@ public class NovelInfoActivity extends BaseMaterialActivity {
 
     private void collapseMenu() {
         isMenuExpanded.set(false);
-        fabMenu.setImageResource(R.drawable.ic_svg_add_white);
+        fabMenu.animate().rotation(0f).setDuration(300).setInterpolator(new OvershootInterpolator()).start();
         fabFavorite.hide();
         fabDownload.hide();
         rlMask.setVisibility(View.INVISIBLE);
