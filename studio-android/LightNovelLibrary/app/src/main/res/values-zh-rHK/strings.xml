@@ -210,7 +210,7 @@
     <string name="action_review_list">評論區</string>
     <string name="action_review_new_post">發表新評論</string>
     <string name="about_wenku8_com">輕小說文庫 (Wenku8.com)</string>
-    <string name="about_version_template">版本：%s (%d)</string>
+    <string name="about_version_template">版本：%1$s (%2$d)</string>
     <string name="about_project_homepage">項目主頁: https://wenku8.mewx.org</string>
     <string name="about_no_duty">所有數據來自於互聯網，開發者、設計師、客服均與網站無任何關系，而且本項目完全免費，完整源代碼均開放，純憑興趣做的app，僅供大家學習安卓應用程序制作之法，如有侵犯您的權益，請務必郵件聯系，保證12小時內回復，app內會做屏蔽。</string>
     <string name="about_software_arch">軟體架構</string>
@@ -234,7 +234,7 @@
     <string name="about_qqq">QQ交流群: 181789084</string>
     <string name="dialog_content_ask_for_storage_permission">由於曆史原因，app需要冩入存儲目錄下的wenku8文件夾，是否授予冩入權限？</string>
     <string name="system_save_upgrading">存檔昇級中……</string>
-    <string name="system_save_migrated">存檔昇級完成，已昇級%d個文件（其中%d個文件失敗）。從現在開始，手機內部/外部存儲中的wenku8文件夾將不再被更新。如果需要重新昇級存檔，清空app的存儲和緩存。即將重新加載app~</string>
+    <string name="system_save_migrated">存檔昇級完成，已昇級%1$d個文件（其中%2$d個文件失敗）。從現在開始，手機內部/外部存儲中的wenku8文件夾將不再被更新。如果需要重新昇級存檔，清空app的存儲和緩存。即將重新加載app~</string>
     <string name="system_save_need_to_migrate">髮現內部存儲中有未昇級的存檔需要昇級，由於權限原因，請在接下來彈出的界麵中選定手機內部存儲根目錄裡的wenku8目錄並確認（注意不是同名的圖片文件夾）。\n\n（注意：選擇了“永遠不要昇級”後，可以通過清空app的存儲，然後重新開始昇級。）</string>
     <string name="dialog_content_wrong_path">路徑似乎不正確呢：\n%s\n是否重新選擇？\n\n（注意：選擇了“永遠不要昇級”後，可以通過清空app的存儲，然後重新開始昇級。）</string>
     <string name="dialog_positive_retry">重試一下？</string>
