@@ -16,24 +16,30 @@ import com.google.android.material.progressindicator.LinearProgressIndicator;
 
 import org.mewx.wenku8.R;
 
+import java.util.Locale;
+
 /**
  * A helper to create Material 3 dialogs with an embedded progress indicator.
  * Replaces the old MaterialDialog.Builder.progress() pattern.
- * 
- * @author Claude Opus 4.6
  */
 public class ProgressDialogHelper {
 
     private final AlertDialog dialog;
     private final LinearProgressIndicator progressBar;
     private final TextView messageView;
+    private final TextView percentView;
+    private final TextView numberView;
 
     private ProgressDialogHelper(@NonNull AlertDialog dialog,
                                  @NonNull LinearProgressIndicator progressBar,
-                                 @NonNull TextView messageView) {
+                                 @NonNull TextView messageView,
+                                 @NonNull TextView percentView,
+                                 @NonNull TextView numberView) {
         this.dialog = dialog;
         this.progressBar = progressBar;
         this.messageView = messageView;
+        this.percentView = percentView;
+        this.numberView = numberView;
     }
 
     /**
@@ -54,15 +60,22 @@ public class ProgressDialogHelper {
         View view = LayoutInflater.from(context).inflate(R.layout.dialog_progress, null);
         TextView messageView = view.findViewById(R.id.progress_message);
         LinearProgressIndicator progressBar = view.findViewById(R.id.progress_bar);
+        TextView percentView = view.findViewById(R.id.progress_percent);
+        TextView numberView = view.findViewById(R.id.progress_number);
 
         messageView.setText(message);
 
         if (indeterminate) {
             progressBar.setIndeterminate(true);
+            percentView.setVisibility(View.GONE);
+            numberView.setVisibility(View.GONE);
         } else {
             progressBar.setIndeterminate(false);
             progressBar.setMax(1);
             progressBar.setProgress(0);
+            percentView.setVisibility(View.VISIBLE);
+            numberView.setVisibility(View.VISIBLE);
+            updateProgressText(percentView, numberView, 0, 1);
         }
 
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(context, R.style.CustomMaterialAlertDialog)
@@ -76,7 +89,18 @@ public class ProgressDialogHelper {
         AlertDialog dialog = builder.create();
         dialog.show();
 
-        return new ProgressDialogHelper(dialog, progressBar, messageView);
+        return new ProgressDialogHelper(dialog, progressBar, messageView, percentView, numberView);
+    }
+
+    private static void updateProgressText(TextView percentView, TextView numberView, int progress, int max) {
+        if (max <= 0) {
+            percentView.setText("0%");
+            numberView.setText(String.format(Locale.getDefault(), "%d/%d", progress, max));
+            return;
+        }
+        int percent = (int) ((float) progress / max * 100);
+        percentView.setText(String.format(Locale.getDefault(), "%d%%", percent));
+        numberView.setText(String.format(Locale.getDefault(), "%d/%d", progress, max));
     }
 
     /**
@@ -91,22 +115,34 @@ public class ProgressDialogHelper {
     }
 
     public void setProgress(int progress) {
-        progressBar.setProgress(progress, true);
+        progressBar.post(() -> {
+            progressBar.setProgress(progress, true);
+            if (!progressBar.isIndeterminate()) {
+                updateProgressText(percentView, numberView, progress, progressBar.getMax());
+            }
+        });
     }
 
     public void setMaxProgress(int max) {
-        progressBar.setIndeterminate(false);
-        progressBar.setMax(max);
+        progressBar.post(() -> {
+            progressBar.setIndeterminate(false);
+            progressBar.setMax(max);
+            percentView.setVisibility(View.VISIBLE);
+            numberView.setVisibility(View.VISIBLE);
+            updateProgressText(percentView, numberView, progressBar.getProgress(), max);
+        });
     }
 
     public void dismiss() {
-        try {
-            if (dialog.isShowing()) {
-                dialog.dismiss();
+        progressBar.post(() -> {
+            try {
+                if (dialog.isShowing()) {
+                    dialog.dismiss();
+                }
+            } catch (Exception e) {
+                // Ignore exceptions from dismissed dialogs or detached windows.
             }
-        } catch (Exception e) {
-            // Ignore exceptions from dismissed dialogs or detached windows.
-        }
+        });
     }
 
     public boolean isShowing() {
@@ -114,14 +150,14 @@ public class ProgressDialogHelper {
     }
 
     public void setTitle(@StringRes int titleId) {
-        dialog.setTitle(titleId);
+        progressBar.post(() -> dialog.setTitle(titleId));
     }
 
     public void setTitle(CharSequence title) {
-        dialog.setTitle(title);
+        progressBar.post(() -> dialog.setTitle(title));
     }
 
     public void setMessage(CharSequence message) {
-        messageView.setText(message);
+        progressBar.post(() -> messageView.setText(message));
     }
 }
