@@ -27,9 +27,8 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
-import com.afollestad.materialdialogs.GravityEnum;
-import com.afollestad.materialdialogs.MaterialDialog;
-import com.afollestad.materialdialogs.Theme;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import org.mewx.wenku8.util.ProgressDialogHelper;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
@@ -397,18 +396,15 @@ public class Wenku8ReaderActivityV1 extends BaseMaterialActivity {
 
 
     class AsyncNovelContentTask extends AsyncTask<ContentValues, Integer, Wenku8Error.ErrorCode> {
-        private MaterialDialog md;
+        private ProgressDialogHelper md;
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            md = new MaterialDialog.Builder(Wenku8ReaderActivityV1.this)
-                    .theme(WenkuReaderPageView.getInDayMode() ? Theme.LIGHT : Theme.DARK)
-                    .title(R.string.reader_please_wait)
-                    .content(R.string.reader_engine_v1_parsing)
-                    .progress(true, 0)
-                    .cancelable(false)
-                    .show();
+            md = ProgressDialogHelper.show(Wenku8ReaderActivityV1.this,
+                    getString(R.string.reader_engine_v1_parsing),
+                    /* indeterminate= */ true, /* cancelable= */ false, /* cancelListener= */ null);
+            md.setTitle(getString(R.string.reader_please_wait));
         }
 
         @Override
@@ -634,11 +630,9 @@ public class Wenku8ReaderActivityV1 extends BaseMaterialActivity {
                                             }
                                         });
 
-                                        findViewById(R.id.btn_custom_font).setOnClickListener(v1 -> new MaterialDialog.Builder(Wenku8ReaderActivityV1.this)
-                                                .theme(WenkuReaderPageView.getInDayMode() ? Theme.LIGHT : Theme.DARK)
-                                                .title(R.string.reader_custom_font)
-                                                .items(R.array.reader_font_option)
-                                                .itemsCallback((dialog, view, which, text) -> {
+                                        findViewById(R.id.btn_custom_font).setOnClickListener(v1 -> new MaterialAlertDialogBuilder(Wenku8ReaderActivityV1.this, R.style.CustomMaterialAlertDialog)
+                                                .setTitle(R.string.reader_custom_font)
+                                                .setItems(R.array.reader_font_option, (dialog, which) -> {
                                                     switch (which) {
                                                         case 0:
                                                             // system default
@@ -659,11 +653,9 @@ public class Wenku8ReaderActivityV1 extends BaseMaterialActivity {
                                                 })
                                                 .show());
 
-                                        findViewById(R.id.btn_custom_background).setOnClickListener(v12 -> new MaterialDialog.Builder(Wenku8ReaderActivityV1.this)
-                                                .theme(WenkuReaderPageView.getInDayMode() ? Theme.LIGHT : Theme.DARK)
-                                                .title(R.string.reader_custom_background)
-                                                .items(R.array.reader_background_option)
-                                                .itemsCallback((dialog, view, which, text) -> {
+                                        findViewById(R.id.btn_custom_background).setOnClickListener(v12 -> new MaterialAlertDialogBuilder(Wenku8ReaderActivityV1.this, R.style.CustomMaterialAlertDialog)
+                                                .setTitle(R.string.reader_custom_background)
+                                                .setItems(R.array.reader_background_option, (dialog, which) -> {
                                                     switch (which) {
                                                         case 0:
                                                             // system default
@@ -701,8 +693,10 @@ public class Wenku8ReaderActivityV1 extends BaseMaterialActivity {
                                             } else {
                                                 // jump to previous
                                                 final int i_bak = i;
-                                                new MaterialDialog.Builder(Wenku8ReaderActivityV1.this)
-                                                        .onPositive((dialog, which) -> {
+                                                new MaterialAlertDialogBuilder(Wenku8ReaderActivityV1.this, R.style.CustomMaterialAlertDialog)
+                                                        .setTitle(R.string.dialog_sure_to_jump_chapter)
+                                                        .setMessage(volumeList.chapterList.get(i_bak - 1).chapterName)
+                                                        .setPositiveButton(R.string.dialog_positive_yes, (dialog, which) -> {
                                                             Intent intent = new Intent(Wenku8ReaderActivityV1.this, Wenku8ReaderActivityV1.class);
                                                             intent.putExtra("aid", aid);
                                                             intent.putExtra("volume", volumeList);
@@ -712,12 +706,7 @@ public class Wenku8ReaderActivityV1 extends BaseMaterialActivity {
                                                             overridePendingTransition(R.anim.fade_in, R.anim.hold); // fade in animation
                                                             Wenku8ReaderActivityV1.this.finish();
                                                         })
-                                                        .theme(WenkuReaderPageView.getInDayMode() ? Theme.LIGHT : Theme.DARK)
-                                                        .title(R.string.dialog_sure_to_jump_chapter)
-                                                        .content(volumeList.chapterList.get(i_bak - 1).chapterName)
-                                                        .contentGravity(GravityEnum.CENTER)
-                                                        .positiveText(R.string.dialog_positive_yes)
-                                                        .negativeText(R.string.dialog_negative_no)
+                                                        .setNegativeButton(R.string.dialog_negative_no, null)
                                                         .show();
                                             }
                                             break;
@@ -736,8 +725,10 @@ public class Wenku8ReaderActivityV1 extends BaseMaterialActivity {
                                             } else {
                                                 // jump to previous
                                                 final int i_bak = i;
-                                                new MaterialDialog.Builder(Wenku8ReaderActivityV1.this)
-                                                        .onPositive((dialog, which) -> {
+                                                new MaterialAlertDialogBuilder(Wenku8ReaderActivityV1.this, R.style.CustomMaterialAlertDialog)
+                                                        .setTitle(R.string.dialog_sure_to_jump_chapter)
+                                                        .setMessage(volumeList.chapterList.get(i_bak + 1).chapterName)
+                                                        .setPositiveButton(R.string.dialog_positive_yes, (dialog, which) -> {
                                                             Intent intent = new Intent(Wenku8ReaderActivityV1.this, Wenku8ReaderActivityV1.class);
                                                             intent.putExtra("aid", aid);
                                                             intent.putExtra("volume", volumeList);
@@ -747,12 +738,7 @@ public class Wenku8ReaderActivityV1 extends BaseMaterialActivity {
                                                             overridePendingTransition(R.anim.fade_in, R.anim.hold); // fade in animation
                                                             Wenku8ReaderActivityV1.this.finish();
                                                         })
-                                                        .theme(WenkuReaderPageView.getInDayMode() ? Theme.LIGHT : Theme.DARK)
-                                                        .title(R.string.dialog_sure_to_jump_chapter)
-                                                        .content(volumeList.chapterList.get(i_bak + 1).chapterName)
-                                                        .contentGravity(GravityEnum.CENTER)
-                                                        .positiveText(R.string.dialog_positive_yes)
-                                                        .negativeText(R.string.dialog_negative_no)
+                                                        .setNegativeButton(R.string.dialog_negative_no, null)
                                                         .show();
                                             }
                                             break;
@@ -819,18 +805,15 @@ public class Wenku8ReaderActivityV1 extends BaseMaterialActivity {
                     } else if (mSlidingPageAdapter.getCurrentFirstLineIndex() != rs.lineId ||
                             mSlidingPageAdapter.getCurrentFirstWordIndex() != rs.wordId) {
                         // Popping up jump dialog only when the user didn't exist at the first page.
-                        new MaterialDialog.Builder(Wenku8ReaderActivityV1.this)
-                                .onPositive((dialog, which) -> {
+                        new MaterialAlertDialogBuilder(Wenku8ReaderActivityV1.this, R.style.CustomMaterialAlertDialog)
+                                .setTitle(R.string.reader_v1_notice)
+                                .setMessage(R.string.reader_jump_last)
+                                .setPositiveButton(R.string.dialog_positive_sure, (dialog, which) -> {
                                     mSlidingPageAdapter.setCurrentIndex(rs.lineId, rs.wordId);
                                     mSlidingPageAdapter.restoreState(null, null);
                                     mSlidingPageAdapter.notifyDataSetChanged();
                                 })
-                                .theme(WenkuReaderPageView.getInDayMode() ? Theme.LIGHT : Theme.DARK)
-                                .title(R.string.reader_v1_notice)
-                                .content(R.string.reader_jump_last)
-                                .contentGravity(GravityEnum.CENTER)
-                                .positiveText(R.string.dialog_positive_sure)
-                                .negativeText(R.string.dialog_negative_biao)
+                                .setNegativeButton(R.string.dialog_negative_biao, null)
                                 .show();
                     }
                 }
@@ -850,8 +833,10 @@ public class Wenku8ReaderActivityV1 extends BaseMaterialActivity {
                     } else {
                         // jump to previous
                         final int i_bak = i;
-                        new MaterialDialog.Builder(Wenku8ReaderActivityV1.this)
-                                .onPositive((dialog, which) -> {
+                        new MaterialAlertDialogBuilder(Wenku8ReaderActivityV1.this, R.style.CustomMaterialAlertDialog)
+                                .setTitle(R.string.dialog_sure_to_jump_chapter)
+                                .setMessage(volumeList.chapterList.get(i_bak + 1).chapterName)
+                                .setPositiveButton(R.string.dialog_positive_yes, (dialog, which) -> {
                                     Intent intent = new Intent(Wenku8ReaderActivityV1.this, Wenku8ReaderActivityV1.class);
                                     intent.putExtra("aid", aid);
                                     intent.putExtra("volume", volumeList);
@@ -861,12 +846,7 @@ public class Wenku8ReaderActivityV1 extends BaseMaterialActivity {
                                     overridePendingTransition(R.anim.fade_in, R.anim.hold); // fade in animation
                                     Wenku8ReaderActivityV1.this.finish();
                                 })
-                                .theme(WenkuReaderPageView.getInDayMode() ? Theme.LIGHT : Theme.DARK)
-                                .title(R.string.dialog_sure_to_jump_chapter)
-                                .content(volumeList.chapterList.get(i_bak + 1).chapterName)
-                                .contentGravity(GravityEnum.CENTER)
-                                .positiveText(R.string.dialog_positive_yes)
-                                .negativeText(R.string.dialog_negative_no)
+                                .setNegativeButton(R.string.dialog_negative_no, null)
                                 .show();
                     }
                     break;
@@ -891,8 +871,10 @@ public class Wenku8ReaderActivityV1 extends BaseMaterialActivity {
                     } else {
                         // jump to previous
                         final int i_bak = i;
-                        new MaterialDialog.Builder(Wenku8ReaderActivityV1.this)
-                                .onPositive((dialog, which) -> {
+                        new MaterialAlertDialogBuilder(Wenku8ReaderActivityV1.this, R.style.CustomMaterialAlertDialog)
+                                .setTitle(R.string.dialog_sure_to_jump_chapter)
+                                .setMessage(volumeList.chapterList.get(i_bak - 1).chapterName)
+                                .setPositiveButton(R.string.dialog_positive_yes, (dialog, which) -> {
                                     Intent intent = new Intent(Wenku8ReaderActivityV1.this, Wenku8ReaderActivityV1.class);
                                     intent.putExtra("aid", aid);
                                     intent.putExtra("volume", volumeList);
@@ -902,12 +884,7 @@ public class Wenku8ReaderActivityV1 extends BaseMaterialActivity {
                                     overridePendingTransition(R.anim.fade_in, R.anim.hold); // fade in animation
                                     Wenku8ReaderActivityV1.this.finish();
                                 })
-                                .theme(WenkuReaderPageView.getInDayMode() ? Theme.LIGHT : Theme.DARK)
-                                .title(R.string.dialog_sure_to_jump_chapter)
-                                .content(volumeList.chapterList.get(i_bak - 1).chapterName)
-                                .contentGravity(GravityEnum.CENTER)
-                                .positiveText(R.string.dialog_positive_yes)
-                                .negativeText(R.string.dialog_negative_no)
+                                .setNegativeButton(R.string.dialog_negative_no, null)
                                 .show();
                     }
                     break;

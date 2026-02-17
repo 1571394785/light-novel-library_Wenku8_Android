@@ -24,8 +24,7 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.afollestad.materialdialogs.MaterialDialog;
-import com.afollestad.materialdialogs.Theme;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
 
 import org.mewx.wenku8.R;
@@ -97,15 +96,10 @@ public class NovelItemListFragment extends Fragment implements MyItemClickListen
         rootView.setTag(listType); // set TAG
 
         // Set warning message.
-        rootView.findViewById(R.id.relay_warning).setOnClickListener(view -> new MaterialDialog.Builder(getContext())
-                .theme(Theme.LIGHT)
-                .backgroundColorRes(R.color.dlgBackgroundColor)
-                .contentColorRes(R.color.dlgContentColor)
-                .positiveColorRes(R.color.dlgPositiveButtonColor)
-                .negativeColorRes(R.color.dlgNegativeButtonColor)
-                .title(getResources().getString(R.string.system_warning))
-                .content(getResources().getString(R.string.relay_warning_full))
-                .positiveText(R.string.dialog_positive_ok)
+        rootView.findViewById(R.id.relay_warning).setOnClickListener(view -> new MaterialAlertDialogBuilder(getContext(), R.style.CustomMaterialAlertDialog)
+                .setTitle(getResources().getString(R.string.system_warning))
+                .setMessage(getResources().getString(R.string.relay_warning_full))
+                .setPositiveButton(R.string.dialog_positive_ok, null)
                 .show());
 
         // init values

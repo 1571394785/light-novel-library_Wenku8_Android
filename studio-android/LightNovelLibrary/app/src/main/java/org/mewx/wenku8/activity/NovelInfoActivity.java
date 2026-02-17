@@ -29,9 +29,8 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import android.view.animation.OvershootInterpolator;
-import com.afollestad.materialdialogs.GravityEnum;
-import com.afollestad.materialdialogs.MaterialDialog;
-import com.afollestad.materialdialogs.Theme;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import org.mewx.wenku8.util.ProgressDialogHelper;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.gms.ads.AdRequest;
@@ -93,7 +92,7 @@ public class NovelInfoActivity extends BaseMaterialActivity {
     private TextView tvNovelUpdate = null;
     private TextView tvLatestChapter = null;
     private TextView tvNovelFullIntro = null;
-    private MaterialDialog pDialog = null;
+    private ProgressDialogHelper pDialog = null;
     private ExtendedFloatingActionButton fabFavorite = null;
     private ExtendedFloatingActionButton fabDownload = null;
     private FloatingActionButton fabMenu = null;
@@ -220,34 +219,26 @@ public class NovelInfoActivity extends BaseMaterialActivity {
             if (mNovelItemMeta == null) return;
 
             // show aid: title (only when mNovelItemMeta is not null)
-            new MaterialDialog.Builder(NovelInfoActivity.this)
-                    .theme(Theme.LIGHT)
-                    .titleColorRes(R.color.dlgTitleColor)
-                    .backgroundColorRes(R.color.dlgBackgroundColor)
-                    .contentColorRes(R.color.dlgContentColor)
-                    .positiveColorRes(R.color.dlgPositiveButtonColor)
-                    .title(R.string.dialog_content_novel_title)
-                    .content(aid + ": " + mNovelItemMeta.title)
-                    .contentGravity(GravityEnum.CENTER)
-                    .positiveText(R.string.dialog_positive_known)
+            new MaterialAlertDialogBuilder(NovelInfoActivity.this, R.style.CustomMaterialAlertDialog)
+                    .setTitle(R.string.dialog_content_novel_title)
+                    .setMessage(aid + ": " + mNovelItemMeta.title)
+                    .setPositiveButton(R.string.dialog_positive_known, null)
                     .show();
         });
         tvNovelAuthor.setOnClickListener(v -> {
             if (runLoadingChecker()) return;
             if (mNovelItemMeta == null) return;
 
-            new MaterialDialog.Builder(NovelInfoActivity.this)
-                    .theme(Theme.LIGHT)
-                    .onPositive((ignored1, ignored2) -> {
+            new MaterialAlertDialogBuilder(NovelInfoActivity.this, R.style.CustomMaterialAlertDialog)
+                    .setMessage(R.string.dialog_content_search_author)
+                    .setPositiveButton(R.string.dialog_positive_ok, (ignored1, ignored2) -> {
                         // search author name
                         Intent intent = new Intent(NovelInfoActivity.this, SearchResultActivity.class);
                         intent.putExtra("key", mNovelItemMeta.author);
                         startActivity(intent);
                         overridePendingTransition(R.anim.fade_in, R.anim.hold);
                     })
-                    .content(R.string.dialog_content_search_author)
-                    .positiveText(R.string.dialog_positive_ok)
-                    .negativeText(R.string.dialog_negative_biao)
+                    .setNegativeButton(R.string.dialog_negative_biao, null)
                     .show();
         });
         fabFavorite.setOnClickListener(v -> {
@@ -255,21 +246,14 @@ public class NovelInfoActivity extends BaseMaterialActivity {
 
             // add to favorite
             if(GlobalConfig.testInLocalBookshelf(aid)) {
-                new MaterialDialog.Builder(NovelInfoActivity.this)
-                        .onPositive((ignored1, ignored2) -> {
+                new MaterialAlertDialogBuilder(NovelInfoActivity.this, R.style.CustomMaterialAlertDialog)
+                        .setMessage(R.string.dialog_content_sure_to_unfav)
+                        .setPositiveButton(R.string.dialog_positive_yes, (ignored1, ignored2) -> {
                             // delete from cloud first, if succeed then delete from local
                             AsyncRemoveBookFromCloud arbfc = new AsyncRemoveBookFromCloud();
                             arbfc.execute(aid);
                         })
-                        .theme(Theme.LIGHT)
-                        .backgroundColorRes(R.color.dlgBackgroundColor)
-                        .contentColorRes(R.color.dlgContentColor)
-                        .positiveColorRes(R.color.dlgPositiveButtonColor)
-                        .negativeColorRes(R.color.dlgNegativeButtonColor)
-                        .content(R.string.dialog_content_sure_to_unfav)
-                        .contentGravity(GravityEnum.CENTER)
-                        .positiveText(R.string.dialog_positive_yes)
-                        .negativeText(R.string.dialog_negative_preferno)
+                        .setNegativeButton(R.string.dialog_negative_preferno, null)
                         .show();
             }
             else {
@@ -310,16 +294,10 @@ public class NovelInfoActivity extends BaseMaterialActivity {
 
             // download / update activity or verify downloading action (add to queue)
             // use list dialog to provide more functions
-            new MaterialDialog.Builder(NovelInfoActivity.this)
-                    .theme(Theme.LIGHT)
-                    .title(R.string.dialog_title_choose_download_option)
-                    .backgroundColorRes(R.color.dlgBackgroundColor)
-                    .titleColorRes(R.color.dlgTitleColor)
-                    .negativeText(R.string.dialog_negative_pass)
-                    .negativeColorRes(R.color.dlgNegativeButtonColor)
-                    .itemsGravity(GravityEnum.CENTER)
-                    .items(R.array.download_option)
-                    .itemsCallback((dialog, view, which, text) -> {
+            new MaterialAlertDialogBuilder(NovelInfoActivity.this, R.style.CustomMaterialAlertDialog)
+                    .setTitle(R.string.dialog_title_choose_download_option)
+                    .setNegativeButton(R.string.dialog_negative_pass, null)
+                    .setItems(R.array.download_option, (dialog, which) -> {
                         /*
                          * 0 <string name="dialog_option_check_for_update">检查更新</string>
                          * 1 <string name="dialog_option_update_uncached_volumes">更新下载</string>
@@ -359,16 +337,10 @@ public class NovelInfoActivity extends BaseMaterialActivity {
         mSideSheetHeader.setOnClickListener(v -> {
             if (mCurrentSelectedVolume == null) return;
 
-            new MaterialDialog.Builder(NovelInfoActivity.this)
-                    .theme(Theme.LIGHT)
-                    .titleColorRes(R.color.dlgTitleColor)
-                    .backgroundColorRes(R.color.dlgBackgroundColor)
-                    .contentColorRes(R.color.dlgContentColor)
-                    .positiveColorRes(R.color.dlgPositiveButtonColor)
-                    .title(R.string.dialog_content_volume_title)
-                    .content(mCurrentSelectedVolume.volumeName)
-                    .contentGravity(GravityEnum.CENTER)
-                    .positiveText(R.string.dialog_positive_known)
+            new MaterialAlertDialogBuilder(NovelInfoActivity.this, R.style.CustomMaterialAlertDialog)
+                    .setTitle(R.string.dialog_content_volume_title)
+                    .setMessage(mCurrentSelectedVolume.volumeName)
+                    .setPositiveButton(R.string.dialog_positive_known, null)
                     .show();
         });
     }
@@ -394,22 +366,18 @@ public class NovelInfoActivity extends BaseMaterialActivity {
         auct.execute(aid, 0);
 
         // show progress
-        pDialog = new MaterialDialog.Builder(NovelInfoActivity.this)
-                .theme(Theme.LIGHT)
-                .content(R.string.dialog_content_downloading)
-                .progress(false, 1, true)
-                .cancelable(true)
-                .cancelListener(dialog12 -> {
+        pDialog = ProgressDialogHelper.show(NovelInfoActivity.this,
+                getString(R.string.dialog_content_downloading),
+                /* indeterminate= */ false, /* cancelable= */ true,
+                /* cancelListener= */ dialog12 -> {
                     isLoading = false;
                     auct.cancel(true);
                     pDialog.dismiss();
                     pDialog = null;
-                })
-                .show();
+                });
 
         pDialog.setProgress(0);
         pDialog.setMaxProgress(1);
-        pDialog.show();
     }
 
     /**
@@ -422,62 +390,47 @@ public class NovelInfoActivity extends BaseMaterialActivity {
         auct.execute(aid, 1);
 
         // show progress
-        pDialog = new MaterialDialog.Builder(NovelInfoActivity.this)
-                .theme(Theme.LIGHT)
-                .content(R.string.dialog_content_downloading)
-                .progress(false, 1, true)
-                .cancelable(true)
-                .cancelListener(dialog1 -> {
+        pDialog = ProgressDialogHelper.show(NovelInfoActivity.this,
+                getString(R.string.dialog_content_downloading),
+                /* indeterminate= */ false, /* cancelable= */ true,
+                /* cancelListener= */ dialog1 -> {
                     isLoading = false;
                     auct.cancel(true);
                     pDialog.dismiss();
                     pDialog = null;
-                })
-                .show();
+                });
 
         pDialog.setProgress(0);
         pDialog.setMaxProgress(1);
-        pDialog.show();
     }
 
     /**
      * 2 <string name="dialog_option_force_update_all">覆盖下载</string>
      */
     private void optionDownloadOverride() {
-        new MaterialDialog.Builder(NovelInfoActivity.this)
-                .onPositive((ignored1, ignored2) -> {
+        new MaterialAlertDialogBuilder(NovelInfoActivity.this, R.style.CustomMaterialAlertDialog)
+                .setMessage(R.string.dialog_content_verify_force_update)
+                .setPositiveButton(R.string.dialog_positive_likethis, (ignored1, ignored2) -> {
                     // async task
                     isLoading = true;
                     final AsyncUpdateCacheTask auct = new AsyncUpdateCacheTask();
                     auct.execute(aid, 2);
 
                     // show progress
-                    pDialog = new MaterialDialog.Builder(NovelInfoActivity.this)
-                            .theme(Theme.LIGHT)
-                            .content(R.string.dialog_content_downloading)
-                            .progress(false, 1, true)
-                            .cancelable(true)
-                            .cancelListener(dialog13 -> {
+                    pDialog = ProgressDialogHelper.show(NovelInfoActivity.this,
+                            getString(R.string.dialog_content_downloading),
+                            /* indeterminate= */ false, /* cancelable= */ true,
+                            /* cancelListener= */ dialog13 -> {
                                 isLoading = false;
                                 auct.cancel(true);
                                 pDialog.dismiss();
                                 pDialog = null;
-                            })
-                            .show();
+                            });
 
                     pDialog.setProgress(0);
                     pDialog.setMaxProgress(1);
-                    pDialog.show();
                 })
-                .theme(Theme.LIGHT)
-                .backgroundColorRes(R.color.dlgBackgroundColor)
-                .contentColorRes(R.color.dlgContentColor)
-                .positiveColorRes(R.color.dlgPositiveButtonColor)
-                .negativeColorRes(R.color.dlgNegativeButtonColor)
-                .content(R.string.dialog_content_verify_force_update)
-                .contentGravity(GravityEnum.CENTER)
-                .positiveText(R.string.dialog_positive_likethis)
-                .negativeText(R.string.dialog_negative_preferno)
+                .setNegativeButton(R.string.dialog_negative_preferno, null)
                 .show();
     }
 
@@ -490,18 +443,28 @@ public class NovelInfoActivity extends BaseMaterialActivity {
         for(int i = 0; i < listVolume.size(); i ++)
             volumes[i] = listVolume.get(i).volumeName;
 
-        new MaterialDialog.Builder(NovelInfoActivity.this)
-                .theme(Theme.LIGHT)
-                .title(R.string.dialog_option_select_and_update)
-                .items(volumes)
-                .itemsCallbackMultiChoice(null, (dialog, which, text) -> {
-                    if (which == null || which.length == 0) return true;
+        new MaterialAlertDialogBuilder(NovelInfoActivity.this, R.style.CustomMaterialAlertDialog)
+                .setTitle(R.string.dialog_option_select_and_update)
+                .setMultiChoiceItems(volumes, null, (dialog, which, isChecked) -> {
+                    // Do nothing on choice click, we handle it in positive button
+                })
+                .setPositiveButton(R.string.dialog_positive_ok, (dialog, which) -> {
+                    // Get selected items
+                    androidx.appcompat.app.AlertDialog alertDialog = (androidx.appcompat.app.AlertDialog) dialog;
+                    android.util.SparseBooleanArray checkedItemPositions = alertDialog.getListView().getCheckedItemPositions();
+                    List<Integer> selectedIndices = new ArrayList<>();
+                    for (int i = 0; i < checkedItemPositions.size(); i++) {
+                        int index = checkedItemPositions.keyAt(i);
+                        if (checkedItemPositions.valueAt(i)) {
+                            selectedIndices.add(index);
+                        }
+                    }
+
+                    if (selectedIndices.isEmpty()) return;
 
                     AsyncDownloadVolumes adv = new AsyncDownloadVolumes();
-                    adv.execute(which);
-                    return true;
+                    adv.execute(selectedIndices.toArray(new Integer[0]));
                 })
-                .positiveText(R.string.dialog_positive_ok)
                 .show();
     }
 
@@ -565,8 +528,10 @@ public class NovelInfoActivity extends BaseMaterialActivity {
         }
         final VolumeList volumeList_bak = savedVolumeList;
 
-        new MaterialDialog.Builder(this)
-                .onPositive((ignored1, ignored2) -> {
+        new MaterialAlertDialogBuilder(this, R.style.CustomMaterialAlertDialog)
+                .setTitle(R.string.reader_v1_notice)
+                .setMessage(getResources().getString(R.string.reader_jump_last) + "\n" + title + "\n" + savedVolumeList.volumeName + "\n" + chapterInfo.chapterName)
+                .setPositiveButton(R.string.dialog_positive_sure, (ignored1, ignored2) -> {
                     // jump to reader activity
                     Intent intent = new Intent(NovelInfoActivity.this, Wenku8ReaderActivityV1.class);
                     intent.putExtra("aid", aid);
@@ -586,17 +551,7 @@ public class NovelInfoActivity extends BaseMaterialActivity {
                     startActivity(intent);
                     overridePendingTransition(R.anim.fade_in, R.anim.hold); // fade in animation
                 })
-                .theme(Theme.LIGHT)
-                .titleColorRes(R.color.default_text_color_black)
-                .backgroundColorRes(R.color.dlgBackgroundColor)
-                .contentColorRes(R.color.dlgContentColor)
-                .positiveColorRes(R.color.dlgPositiveButtonColor)
-                .negativeColorRes(R.color.dlgNegativeButtonColor)
-                .title(R.string.reader_v1_notice)
-                .content(getResources().getString(R.string.reader_jump_last) + "\n" + title + "\n" + savedVolumeList.volumeName + "\n" + chapterInfo.chapterName)
-                .contentGravity(GravityEnum.CENTER)
-                .positiveText(R.string.dialog_positive_sure)
-                .negativeText(R.string.dialog_negative_biao)
+                .setNegativeButton(R.string.dialog_negative_biao, null)
                 .show();
     }
 
@@ -796,15 +751,13 @@ public class NovelInfoActivity extends BaseMaterialActivity {
           btn.setBackgroundColor(Color.LTGRAY);
         }
         btn.setOnLongClickListener(v -> {
-          new MaterialDialog.Builder(NovelInfoActivity.this)
-              .theme(Theme.LIGHT)
-              .onPositive((ignored1, ignored2) -> {
+          new MaterialAlertDialogBuilder(NovelInfoActivity.this, R.style.CustomMaterialAlertDialog)
+              .setMessage(R.string.dialog_sure_to_clear_cache)
+              .setPositiveButton(R.string.dialog_positive_want, (ignored1, ignored2) -> {
                 LightCache.cleanLocalCache(vl);
                 ((TextView) rl.findViewById(R.id.chapter_status)).setText("");
               })
-              .content(R.string.dialog_sure_to_clear_cache)
-              .positiveText(R.string.dialog_positive_want)
-              .negativeText(R.string.dialog_negative_biao)
+              .setNegativeButton(R.string.dialog_negative_biao, null)
               .show();
           return true;
         });
@@ -860,11 +813,9 @@ public class NovelInfoActivity extends BaseMaterialActivity {
             View optionBtn = btn.findViewById(R.id.novel_option);
             optionBtn.setVisibility(View.VISIBLE);
             optionBtn.setOnClickListener(ignored -> {
-                new MaterialDialog.Builder(NovelInfoActivity.this)
-                    .theme(Theme.LIGHT)
-                    .title(R.string.system_choose_reader_engine)
-                    .items(R.array.reader_engine_option)
-                    .itemsCallback((ignored1, ignored2, which, ignored3) -> {
+                new MaterialAlertDialogBuilder(NovelInfoActivity.this, R.style.CustomMaterialAlertDialog)
+                    .setTitle(R.string.system_choose_reader_engine)
+                    .setItems(R.array.reader_engine_option, (ignored1, which) -> {
                         Class readerClass = Wenku8ReaderActivityV1.class;
                         switch (which) {
                             case 0:
@@ -1073,17 +1024,14 @@ public class NovelInfoActivity extends BaseMaterialActivity {
     }
 
     class AsyncRemoveBookFromCloud extends AsyncTask<Integer, Integer, Wenku8Error.ErrorCode> {
-        MaterialDialog md;
+        ProgressDialogHelper md;
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            md = new MaterialDialog.Builder(NovelInfoActivity.this)
-                    .theme(Theme.LIGHT)
-                    .content(R.string.dialog_content_novel_remove_from_cloud)
-                    .contentColorRes(R.color.dlgContentColor)
-                    .progress(true, 0)
-                    .show();
+            md = ProgressDialogHelper.show(NovelInfoActivity.this,
+                    getString(R.string.dialog_content_novel_remove_from_cloud),
+                    /* indeterminate= */ true, /* cancelable= */ false, /* cancelListener= */ null);
         }
 
         @Override
@@ -1153,7 +1101,7 @@ public class NovelInfoActivity extends BaseMaterialActivity {
     }
 
     private class AsyncDownloadVolumes extends AsyncTask<Integer[], Integer, Wenku8Error.ErrorCode> {
-        private MaterialDialog md;
+        private ProgressDialogHelper md;
         private boolean loading = false;
         private int size_a;
 
@@ -1161,13 +1109,10 @@ public class NovelInfoActivity extends BaseMaterialActivity {
         protected void onPreExecute() {
             super.onPreExecute();
             loading = true;
-            md = new MaterialDialog.Builder(NovelInfoActivity.this)
-                    .theme(Theme.LIGHT)
-                    .content(R.string.dialog_content_downloading)
-                    .progress(false, 1, true)
-                    .cancelable(true)
-                    .cancelListener(dialog -> loading = false)
-                    .show();
+            md = ProgressDialogHelper.show(NovelInfoActivity.this,
+                    getString(R.string.dialog_content_downloading),
+                    /* indeterminate= */ false, /* cancelable= */ true,
+                    /* cancelListener= */ dialog -> loading = false);
             md.setProgress(0);
             md.setMaxProgress(1);
             size_a = 0;

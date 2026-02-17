@@ -22,8 +22,7 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
-import com.afollestad.materialdialogs.MaterialDialog;
-import com.afollestad.materialdialogs.Theme;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
@@ -36,6 +35,7 @@ import org.mewx.wenku8.global.GlobalConfig;
 import org.mewx.wenku8.api.Wenku8API;
 import org.mewx.wenku8.util.LightCache;
 import org.mewx.wenku8.network.LightUserSession;
+import org.mewx.wenku8.util.ProgressDialogHelper;
 import org.mewx.wenku8.util.SaveFileMigration;
 
 import java.io.File;
@@ -155,26 +155,17 @@ public class MainActivity extends BaseMaterialActivity {
         // The permission issue for Android API 33+.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && SaveFileMigration.migrationEligible()) {
             Log.d(TAG, "startOldSaveMigration: Eligible");
-            new MaterialDialog.Builder(MainActivity.this)
-                    .theme(Theme.LIGHT)
-                    .backgroundColorRes(R.color.dlgBackgroundColor)
-                    .contentColorRes(R.color.dlgContentColor)
-                    .positiveColorRes(R.color.dlgPositiveButtonColor)
-                    .neutralColorRes(R.color.dlgNegativeButtonColor)
-                    .negativeColorRes(R.color.myAccentColor)
-                    .content(R.string.system_save_need_to_migrate)
-                    .positiveText(R.string.dialog_positive_upgrade)
-                    // This neutral text is needed because some users couldn't get system file picker.
-                    .neutralText(R.string.dialog_negative_pass_for_now)
-                    .negativeText(R.string.dialog_negative_never)
-                    .onPositive((unused1, unused2) -> {
+            new MaterialAlertDialogBuilder(MainActivity.this, R.style.CustomMaterialAlertDialog)
+                    .setMessage(R.string.system_save_need_to_migrate)
+                    .setPositiveButton(R.string.dialog_positive_upgrade, (unused1, unused2) -> {
                         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
                         intent.addCategory(Intent.CATEGORY_DEFAULT);
                         startActivityForResult(Intent.createChooser(intent, "Choose directory"), REQUEST_READ_EXTERNAL_SAVES);
                     })
-                    // Do nothing for onNeutral.
-                    .onNegative((dialog, which) -> SaveFileMigration.markMigrationCompleted())
-                    .cancelable(false)
+                    // This neutral text is needed because some users couldn't get system file picker.
+                    .setNeutralButton(R.string.dialog_negative_pass_for_now, null)
+                    .setNegativeButton(R.string.dialog_negative_never, (dialog, which) -> SaveFileMigration.markMigrationCompleted())
+                    .setCancelable(false)
                     .show();
 
             // Return early to wait for the permissions grant on the directory.
@@ -186,12 +177,9 @@ public class MainActivity extends BaseMaterialActivity {
     }
 
     private void runExternalSaveMigration() {
-        MaterialDialog progressDialog = new MaterialDialog.Builder(MainActivity.this)
-                .theme(Theme.LIGHT)
-                .content(R.string.system_save_upgrading)
-                .progress(false, 1, false)
-                .cancelable(false)
-                .show();
+        ProgressDialogHelper progressDialog = ProgressDialogHelper.show(MainActivity.this,
+                getString(R.string.system_save_upgrading),
+                /* indeterminate= */ false, /* cancelable= */ false, /* cancelListener= */ null);
 
         ExecutorService executor = Executors.newSingleThreadExecutor();
         Handler handler = new Handler(Looper.getMainLooper()); // Handles the UI works.
@@ -251,15 +239,10 @@ public class MainActivity extends BaseMaterialActivity {
                 SaveFileMigration.markMigrationCompleted();
                 progressDialog.dismiss();
 
-                new MaterialDialog.Builder(MainActivity.this)
-                        .theme(Theme.LIGHT)
-                        .backgroundColorRes(R.color.dlgBackgroundColor)
-                        .contentColorRes(R.color.dlgContentColor)
-                        .positiveColorRes(R.color.dlgPositiveButtonColor)
-                        .content(R.string.system_save_migrated, filesToCopy.size(), finalFailedFiles)
-                        .positiveText(R.string.dialog_positive_sure)
-                        .onPositive((unused1, unused2) -> reloadApp())
-                        .cancelable(false)
+                new MaterialAlertDialogBuilder(MainActivity.this, R.style.CustomMaterialAlertDialog)
+                        .setMessage(getString(R.string.system_save_migrated, filesToCopy.size(), finalFailedFiles))
+                        .setPositiveButton(R.string.dialog_positive_sure, (unused1, unused2) -> reloadApp())
+                        .setCancelable(false)
                         .show();
             });
         });
@@ -418,21 +401,12 @@ public class MainActivity extends BaseMaterialActivity {
                 saveMigrationParams.putString("valid_path", "false");
                 mFirebaseAnalytics.logEvent("save_migration_path_selection", saveMigrationParams);
 
-                new MaterialDialog.Builder(MainActivity.this)
-                        .theme(Theme.LIGHT)
-                        .backgroundColorRes(R.color.dlgBackgroundColor)
-                        .contentColorRes(R.color.dlgContentColor)
-                        .positiveColorRes(R.color.dlgPositiveButtonColor)
-                        .neutralColorRes(R.color.dlgNegativeButtonColor)
-                        .negativeColorRes(R.color.myAccentColor)
-                        .content(R.string.dialog_content_wrong_path, wenku8Path.replace("/tree/primary:", "/"))
-                        .positiveText(R.string.dialog_positive_retry)
-                        .neutralText(R.string.dialog_negative_pass_for_now)
-                        .negativeText(R.string.dialog_negative_never)
-                        .onPositive((unused1, unused2) -> reloadApp())
-                        // Do nothing for onNeutral.
-                        .onNegative((dialog, which) -> SaveFileMigration.markMigrationCompleted())
-                        .cancelable(false)
+                new MaterialAlertDialogBuilder(MainActivity.this, R.style.CustomMaterialAlertDialog)
+                        .setMessage(getString(R.string.dialog_content_wrong_path, wenku8Path.replace("/tree/primary:", "/")))
+                        .setPositiveButton(R.string.dialog_positive_retry, (unused1, unused2) -> reloadApp())
+                        .setNeutralButton(R.string.dialog_negative_pass_for_now, null)
+                        .setNegativeButton(R.string.dialog_negative_never, (dialog, which) -> SaveFileMigration.markMigrationCompleted())
+                        .setCancelable(false)
                         .show();
                 return;
             } else {

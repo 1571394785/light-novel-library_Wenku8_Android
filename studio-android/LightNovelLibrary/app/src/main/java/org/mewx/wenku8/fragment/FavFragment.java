@@ -22,9 +22,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import com.afollestad.materialdialogs.GravityEnum;
-import com.afollestad.materialdialogs.MaterialDialog;
-import com.afollestad.materialdialogs.Theme;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import org.mewx.wenku8.MyApp;
 import org.mewx.wenku8.R;
@@ -42,6 +40,7 @@ import org.mewx.wenku8.listener.MyItemLongClickListener;
 import org.mewx.wenku8.listener.MyOptionClickListener;
 import org.mewx.wenku8.util.LightCache;
 import org.mewx.wenku8.network.LightNetwork;
+import org.mewx.wenku8.util.ProgressDialogHelper;
 import org.mewx.wenku8.util.LightTool;
 import org.mewx.wenku8.network.LightUserSession;
 
@@ -126,66 +125,43 @@ public class FavFragment extends Fragment implements MyItemClickListener, MyItem
 
     @Override
     public void onOptionButtonClick(View view, final int position) {
-        new MaterialDialog.Builder(getActivity())
-                .theme(Theme.LIGHT)
-                .title(R.string.dialog_title_choose_delete_option)
-                .backgroundColorRes(R.color.dlgBackgroundColor)
-                .titleColorRes(R.color.dlgTitleColor)
-                .negativeText(R.string.dialog_negative_pass)
-                .negativeColorRes(R.color.dlgNegativeButtonColor)
-                .itemsGravity(GravityEnum.CENTER)
-                .items(R.array.cleanup_option)
-                .itemsCallback(new MaterialDialog.ListCallback() {
-                    @Override
-                    public void onSelection(MaterialDialog dialog, View view, int which, CharSequence text) {
-                        /*
-                         * 0 <string name="dialog_clear_cache">清除缓存</string>
-                         * 1 <string name="dialog_delete_book">删除这本书</string>
-                         */
-                        switch (which) {
-                            case 0:
-                                new MaterialDialog.Builder(getActivity())
-                                        .callback(new MaterialDialog.ButtonCallback() {
-                                            @Override
-                                            public void onPositive(MaterialDialog dialog) {
-                                                super.onPositive(dialog);
-                                                int aid = listNovelItemAid.get(position);
-                                                String novelFullVolume = GlobalConfig.loadFullFileFromSaveFolder("intro", aid + "-volume.xml");
-                                                if(novelFullVolume.isEmpty()) return;
-                                                List<VolumeList> listVolume = Wenku8Parser.getVolumeList(novelFullVolume);
-                                                if(listVolume.isEmpty()) return;
-                                                cleanVolumesCache(listVolume);
-                                            }
-                                        })
-                                        .theme(Theme.LIGHT)
-                                        .content(R.string.dialog_sure_to_clear_cache)
-                                        .contentGravity(GravityEnum.CENTER)
-                                        .positiveText(R.string.dialog_positive_sure)
-                                        .negativeText(R.string.dialog_negative_preferno)
-                                        .show();
-                                break;
-                            case 1:
-                                new MaterialDialog.Builder(getActivity())
-                                        .callback(new MaterialDialog.ButtonCallback() {
-                                            @Override
-                                            public void onPositive(MaterialDialog dialog) {
-                                                super.onPositive(dialog);
-                                                // Delete operation: delete from in-memory index and cloud first.
-                                                // Then, the async task will remove the deleted book from local bookshelf.
-                                                int aid = listNovelItemAid.get(position);
-                                                listNovelItemAid.remove(position);
-                                                new AsyncRemoveBookFromCloud().execute(aid);
-                                                refreshList(timecount ++);
-                                            }
-                                        })
-                                        .theme(Theme.LIGHT)
-                                        .content(R.string.dialog_content_want_to_delete)
-                                        .contentGravity(GravityEnum.CENTER)
-                                        .positiveText(R.string.dialog_positive_sure)
-                                        .negativeText(R.string.dialog_negative_preferno)
-                                        .show();
-                                break;
-                        }
+        new MaterialAlertDialogBuilder(getActivity(), R.style.CustomMaterialAlertDialog)
+                .setTitle(R.string.dialog_title_choose_delete_option)
+                .setNegativeButton(R.string.dialog_negative_pass, null)
+                .setItems(R.array.cleanup_option, (dialog, which) -> {
+                    /*
+                     * 0 <string name="dialog_clear_cache">清除缓存</string>
+                     * 1 <string name="dialog_delete_book">删除这本书</string>
+                     */
+                    switch (which) {
+                        case 0:
+                            new MaterialAlertDialogBuilder(getActivity(), R.style.CustomMaterialAlertDialog)
+                                    .setMessage(R.string.dialog_sure_to_clear_cache)
+                                    .setPositiveButton(R.string.dialog_positive_sure, (d, w) -> {
+                                        int aid = listNovelItemAid.get(position);
+                                        String novelFullVolume = GlobalConfig.loadFullFileFromSaveFolder("intro", aid + "-volume.xml");
+                                        if(novelFullVolume.isEmpty()) return;
+                                        List<VolumeList> listVolume = Wenku8Parser.getVolumeList(novelFullVolume);
+                                        if(listVolume.isEmpty()) return;
+                                        cleanVolumesCache(listVolume);
+                                    })
+                                    .setNegativeButton(R.string.dialog_negative_preferno, null)
+                                    .show();
+                            break;
+                        case 1:
+                            new MaterialAlertDialogBuilder(getActivity(), R.style.CustomMaterialAlertDialog)
+                                    .setMessage(R.string.dialog_content_want_to_delete)
+                                    .setPositiveButton(R.string.dialog_positive_sure, (d, w) -> {
+                                        // Delete operation: delete from in-memory index and cloud first.
+                                        // Then, the async task will remove the deleted book from local bookshelf.
+                                        int aid = listNovelItemAid.get(position);
+                                        listNovelItemAid.remove(position);
+                                        new AsyncRemoveBookFromCloud().execute(aid);
+                                        refreshList(timecount ++);
+                                    })
+                                    .setNegativeButton(R.string.dialog_negative_preferno, null)
+                                    .show();
+                            break;
                     }
                 })
                 .show();
@@ -279,7 +255,7 @@ public class FavFragment extends Fragment implements MyItemClickListener, MyItem
     }
 
     private class AsyncLoadAllFromCloud extends AsyncTask<Integer, Integer, Wenku8Error.ErrorCode> {
-        private MaterialDialog md;
+        private ProgressDialogHelper md;
         private boolean isLoading; // check in "doInBackground" to make sure to continue or not
         private boolean forceLoad = false;
 
@@ -290,19 +266,13 @@ public class FavFragment extends Fragment implements MyItemClickListener, MyItem
             loadAllLocal();
 
             isLoading = true;
-            md = new MaterialDialog.Builder(getActivity())
-                    .theme(Theme.LIGHT)
-                    .content(R.string.dialog_content_sync)
-                    .progress(false, 1, true)
-                    .cancelable(true)
-                    .cancelListener(dialog -> {
+            md = ProgressDialogHelper.show(getActivity(),
+                    getString(R.string.dialog_content_sync),
+                    /* indeterminate= */ false, /* cancelable= */ true, /* cancelListener= */
+                    dialog -> {
                         isLoading = false;
                         md.dismiss();
-                    })
-                    .show();
-            md.setProgress(0);
-            md.setMaxProgress(0);
-            md.show();
+                    });
         }
 
         @Override
@@ -507,18 +477,15 @@ public class FavFragment extends Fragment implements MyItemClickListener, MyItem
     }
 
     class AsyncRemoveBookFromCloud extends AsyncTask<Integer, Integer, Wenku8Error.ErrorCode> {
-        MaterialDialog md;
+        ProgressDialogHelper md;
         int aid;
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            md = new MaterialDialog.Builder(getActivity())
-                    .theme(Theme.LIGHT)
-                    .content(R.string.dialog_content_novel_remove_from_cloud)
-                    .contentColorRes(R.color.dlgContentColor)
-                    .progress(true, 0)
-                    .show();
+            md = ProgressDialogHelper.show(getActivity(),
+                    getString(R.string.dialog_content_novel_remove_from_cloud),
+                    /* indeterminate= */ true, /* cancelable= */ false, /* cancelListener= */ null);
         }
 
         @Override

@@ -11,8 +11,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.afollestad.materialdialogs.MaterialDialog;
-import com.afollestad.materialdialogs.Theme;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.firebase.analytics.FirebaseAnalytics;
 
 import org.mewx.wenku8.R;
@@ -105,16 +104,13 @@ public class NovelReviewNewPostActivity extends BaseMaterialActivity {
 
         if (!etTitle.getText().toString().trim().isEmpty() ||
                 !etContent.getText().toString().trim().isEmpty()) {
-            new MaterialDialog.Builder(this)
-                    .theme(Theme.LIGHT)
-                    .title(R.string.system_warning)
-                    .content(R.string.system_review_draft_will_be_lost)
-                    .positiveText(R.string.dialog_positive_ok)
-                    .negativeText(R.string.dialog_negative_preferno)
-                    .negativeColorRes(R.color.menu_text_color)
-                    .onPositive((dialog, which) -> {
+            new MaterialAlertDialogBuilder(this, R.style.CustomMaterialAlertDialog)
+                    .setTitle(R.string.system_warning)
+                    .setMessage(R.string.system_review_draft_will_be_lost)
+                    .setPositiveButton(R.string.dialog_positive_ok, (dialog, which) -> {
                         super.onBackPressed();
                     })
+                    .setNegativeButton(R.string.dialog_negative_preferno, null)
                     .show();
         } else {
             super.onBackPressed();

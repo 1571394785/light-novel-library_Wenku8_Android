@@ -28,9 +28,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.graphics.Insets;
 
-import com.afollestad.materialdialogs.MaterialDialog;
-import com.afollestad.materialdialogs.StackingBehavior;
-import com.afollestad.materialdialogs.Theme;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.makeramen.roundedimageview.RoundedImageView;
 
@@ -117,13 +115,10 @@ public class NavigationDrawerFragment extends Fragment {
             view.findViewById(R.id.main_menu_open_source).setOnClickListener(v -> {
                         FragmentActivity fragmentActivity = getActivity();
                         if (fragmentActivity == null) return;
-                        new MaterialDialog.Builder(fragmentActivity)
-                                .theme(Theme.LIGHT)
-                                .title(R.string.main_menu_statement)
-                                .content(GlobalConfig.getOpensourceLicense())
-                                .stackingBehavior(StackingBehavior.ALWAYS)
-                                .positiveColorRes(R.color.dlgPositiveButtonColor)
-                                .positiveText(R.string.dialog_positive_known)
+                        new MaterialAlertDialogBuilder(fragmentActivity, R.style.CustomMaterialAlertDialog)
+                                .setTitle(R.string.main_menu_statement)
+                                .setMessage(GlobalConfig.getOpensourceLicense())
+                                .setPositiveButton(R.string.dialog_positive_known, null)
                                 .show();
                     }
             );
