@@ -27,6 +27,7 @@ public class NovelItemInfoUpdate {
     public String status = LOADING_STRING;
     public String update = LOADING_STRING; // last update time
     public String intro_short = LOADING_STRING;
+    public String tags = ""; // loaded from new API
     public String latest_chapter = LOADING_STRING; // only used in bookshelf
 
     // static function
@@ -67,6 +68,7 @@ public class NovelItemInfoUpdate {
                             niiu.status = "";
                             niiu.update = "";
                             niiu.intro_short = "";
+                            niiu.tags = "";
                             niiu.latest_chapter = "";
 
                         } else if ("data".equals(xmlPullParser.getName())) {
