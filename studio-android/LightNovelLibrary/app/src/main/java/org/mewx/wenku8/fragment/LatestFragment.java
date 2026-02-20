@@ -29,7 +29,7 @@ import org.mewx.wenku8.adapter.NovelItemAdapterUpdate;
 import org.mewx.wenku8.async.CheckAppNewVersion;
 import org.mewx.wenku8.global.GlobalConfig;
 import org.mewx.wenku8.global.api.NovelItemInfoUpdate;
-import org.mewx.wenku8.global.api.NovelListWithInfoParser;
+import org.mewx.wenku8.global.api.custom.NovelListWithInfoParser;
 import org.mewx.wenku8.api.Wenku8API;
 import org.mewx.wenku8.listener.MyItemClickListener;
 import org.mewx.wenku8.listener.MyItemLongClickListener;
@@ -138,7 +138,7 @@ public class LatestFragment extends Fragment implements MyItemClickListener, MyI
 
         // fetch list
         AsyncLoadLatestList ast = new AsyncLoadLatestList();
-        ast.execute(Wenku8API.getNovelListWithInfo(Wenku8API.NovelSortedBy.lastUpdate, page,
+        ast.execute(Wenku8API.getMewxNovelList(Wenku8API.NovelSortedBy.lastUpdate, page,
                 GlobalConfig.getCurrentLang()));
     }
 
@@ -215,24 +215,18 @@ public class LatestFragment extends Fragment implements MyItemClickListener, MyI
         protected List<NovelItemInfoUpdate> doInBackground(ContentValues... params) {
             List<NovelItemInfoUpdate> newItems = new ArrayList<>();
             try {
-                byte[] tempXml = LightNetwork.LightHttpPostConnection(Wenku8API.BASE_URL, params[0]);
-                if (tempXml == null) {
+                byte[] tempResult = LightNetwork.LightHttpPostConnection(Wenku8API.BASE_URL, params[0]);
+                if (tempResult == null) {
                     return null;
                 }
-                String xml = new String(tempXml, "UTF-8");
-                totalPage = NovelListWithInfoParser.getNovelListWithInfoPageNum(xml);
-                List<NovelListWithInfoParser.NovelListWithInfo> l = NovelListWithInfoParser.getNovelListWithInfo(xml);
-                if (l.isEmpty()) {
+                String json = new String(tempResult, "UTF-8");
+                NovelListWithInfoParser.Result result = NovelListWithInfoParser.parse(json);
+                if (result == null || result.items.isEmpty()) {
                     return null;
                 }
 
-                for (int i = 0; i < l.size(); i++) {
-                    NovelListWithInfoParser.NovelListWithInfo nlwi = l.get(i);
-                    // Lean Initialization: only set AID, let adapter load the rest.
-                    NovelItemInfoUpdate ni = new NovelItemInfoUpdate(nlwi.aid);
-                    // We don't populate other fields here, effectively discarding the hit/push/fav info in favor of loading the full standard info via NovelItemAdapterUpdate.
-                    newItems.add(ni);
-                }
+                totalPage = result.pageNum;
+                newItems.addAll(result.items);
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
             }
