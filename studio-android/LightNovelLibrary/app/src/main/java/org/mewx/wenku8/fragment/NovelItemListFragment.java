@@ -24,8 +24,7 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.afollestad.materialdialogs.MaterialDialog;
-import com.afollestad.materialdialogs.Theme;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
 
 import org.mewx.wenku8.R;
@@ -46,7 +45,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import fr.castorflex.android.smoothprogressbar.SmoothProgressBar;
+import com.google.android.material.progressindicator.LinearProgressIndicator;
 
 public class NovelItemListFragment extends Fragment implements MyItemClickListener, MyItemLongClickListener {
 
@@ -60,7 +59,7 @@ public class NovelItemListFragment extends Fragment implements MyItemClickListen
     private ActionBar actionBar = null;
     private LinearLayoutManager mLayoutManager = null;
     private RecyclerView mRecyclerView = null;
-    private SmoothProgressBar spb = null;
+    private LinearProgressIndicator spb = null;
 
     // novel list info
     private List<Integer> listNovelItemAid = new ArrayList<>(); // aid list
@@ -97,22 +96,14 @@ public class NovelItemListFragment extends Fragment implements MyItemClickListen
         rootView.setTag(listType); // set TAG
 
         // Set warning message.
-        rootView.findViewById(R.id.relay_warning).setOnClickListener(view -> new MaterialDialog.Builder(getContext())
-                .theme(Theme.LIGHT)
-                .backgroundColorRes(R.color.dlgBackgroundColor)
-                .contentColorRes(R.color.dlgContentColor)
-                .positiveColorRes(R.color.dlgPositiveButtonColor)
-                .negativeColorRes(R.color.dlgNegativeButtonColor)
-                .title(getResources().getString(R.string.system_warning))
-                .content(getResources().getString(R.string.relay_warning_full))
-                .positiveText(R.string.dialog_positive_ok)
+        rootView.findViewById(R.id.relay_warning).setOnClickListener(view -> new MaterialAlertDialogBuilder(getContext(), R.style.CustomMaterialAlertDialog)
+                .setTitle(getResources().getString(R.string.system_warning))
+                .setMessage(getResources().getString(R.string.relay_warning_full))
+                .setPositiveButton(R.string.dialog_positive_ok, null)
                 .show());
 
         // init values
-        listNovelItemAid = new ArrayList<>();
-        listNovelItemInfo = new ArrayList<>();
-        currentPage = 1; // default 1
-        totalPage = 0; // default 0
+        if (totalPage == 0) currentPage = 1; // default 1
 
         mLayoutManager = new LinearLayoutManager(getActivity());
         mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
@@ -121,23 +112,32 @@ public class NovelItemListFragment extends Fragment implements MyItemClickListen
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
         mRecyclerView.setLayoutManager(mLayoutManager);
 
-        // List request
-        if(listType.equals(SEARCH_TYPE)) {
-            // update UI
-            spb = getActivity().findViewById(R.id.spb);
-            spb.progressiveStart();
-
-            // execute task
-            Toast.makeText(getActivity(),"search",Toast.LENGTH_SHORT).show();
-            AsyncGetSearchResultList asyncGetSearchResultList = new AsyncGetSearchResultList();
-            asyncGetSearchResultList.execute(searchKey);
+        // Reuse existing data if available
+        if (!listNovelItemInfo.isEmpty()) {
+            mAdapter = new NovelItemAdapterUpdate(listNovelItemInfo);
+            mAdapter.setOnItemClickListener(this);
+            mAdapter.setOnItemLongClickListener(this);
+            mRecyclerView.setAdapter(mAdapter);
         }
         else {
-            // Listener
-            mRecyclerView.addOnScrollListener(new MyOnScrollListener());
-            mRecyclerView.addOnScrollListener(new OnHidingScrollListener());
-            AsyncGetNovelItemList asyncGetNovelItemList = new AsyncGetNovelItemList();
-            asyncGetNovelItemList.execute(currentPage);
+            // List request
+            if(listType.equals(SEARCH_TYPE)) {
+                // update UI
+                spb = getActivity().findViewById(R.id.spb);
+                spb.setVisibility(View.VISIBLE);
+    
+                // execute task
+                Toast.makeText(getActivity(),"search",Toast.LENGTH_SHORT).show();
+                AsyncGetSearchResultList asyncGetSearchResultList = new AsyncGetSearchResultList();
+                asyncGetSearchResultList.execute(searchKey);
+            }
+            else {
+                // Listener
+                mRecyclerView.addOnScrollListener(new MyOnScrollListener());
+                mRecyclerView.addOnScrollListener(new OnHidingScrollListener());
+                AsyncGetNovelItemList asyncGetNovelItemList = new AsyncGetNovelItemList();
+                asyncGetNovelItemList.execute(currentPage);
+            }
         }
         return rootView;
     }
@@ -323,6 +323,14 @@ public class NovelItemListFragment extends Fragment implements MyItemClickListen
 
         @Override
         protected void onPostExecute(Integer integer) {
+            // Always reset loading status first, regardless of fragment state.
+            isLoading.set(false);
+
+            // Updating the results only when the fragment is attached correctly.
+            if (!isAdded() || getActivity() == null) {
+                return;
+            }
+
             if (integer == -1) {
                 // network error
                 return;
@@ -333,14 +341,11 @@ public class NovelItemListFragment extends Fragment implements MyItemClickListen
             }
 
             refreshPartialIdList(tempNovelList);
-            isLoading.set(false);
 
             // TODO: remove this warning view because all traffic will come from the relay.
-            if (getActivity() != null) {
-                View relayWarningView = getActivity().findViewById(R.id.relay_warning);
-                if (relayWarningView != null) {
-                    relayWarningView.setVisibility(usingWenku8Relay ? View.VISIBLE : View.GONE);
-                }
+            View relayWarningView = getActivity().findViewById(R.id.relay_warning);
+            if (relayWarningView != null) {
+                relayWarningView.setVisibility(usingWenku8Relay ? View.VISIBLE : View.GONE);
             }
         }
     }
@@ -398,7 +403,12 @@ public class NovelItemListFragment extends Fragment implements MyItemClickListen
         protected void onPostExecute(Integer integer) {
             super.onPostExecute(integer);
 
-            spb.progressiveStop();
+            // Updating the results only when the fragment is attached correctly.
+            if (!isAdded() || getActivity() == null) {
+                return;
+            }
+
+            spb.setVisibility(View.INVISIBLE);
             if(integer == -1) {
                 Toast.makeText(getActivity(), getResources().getString(R.string.system_network_error),Toast.LENGTH_LONG).show();
                 return;

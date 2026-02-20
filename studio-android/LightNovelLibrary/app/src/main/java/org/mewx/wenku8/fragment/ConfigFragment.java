@@ -19,8 +19,9 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.afollestad.materialdialogs.MaterialDialog;
-import com.afollestad.materialdialogs.Theme;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+
+import org.mewx.wenku8.util.ProgressDialogHelper;
 
 import org.mewx.wenku8.R;
 import org.mewx.wenku8.activity.AboutActivity;
@@ -95,12 +96,9 @@ public class ConfigFragment extends Fragment {
             tvNotice.setMovementMethod(LinkMovementMethod.getInstance());
         }
 
-        getActivity().findViewById(R.id.btn_choose_language).setOnClickListener(v -> new MaterialDialog.Builder(getActivity())
-                .theme(Theme.LIGHT)
-                .title(R.string.config_choose_language)
-                .content(R.string.dialog_content_language_tip)
-                .items(R.array.choose_language_option)
-                .itemsCallback((dialog, view, which, text) -> {
+        getActivity().findViewById(R.id.btn_choose_language).setOnClickListener(v -> new MaterialAlertDialogBuilder(getActivity(), R.style.CustomMaterialAlertDialog)
+                .setTitle(R.string.config_choose_language)
+                .setItems(R.array.choose_language_option, (dialog, which) -> {
                     // 0 means Simplified Chinese; 1 means Traditional Chinese.
                     Wenku8API.AppLanguage selected = which == 0 ? Wenku8API.AppLanguage.SC : Wenku8API.AppLanguage.TC;
                     if (selected == GlobalConfig.getCurrentLang()) {
@@ -117,11 +115,9 @@ public class ConfigFragment extends Fragment {
                     getActivity().finish(); // destroy itself
                 })
                 .show());
-        getActivity().findViewById(R.id.btn_clear_cache).setOnClickListener(v -> new MaterialDialog.Builder(getActivity())
-                .theme(Theme.LIGHT)
-                .title(R.string.config_clear_cache)
-                .items(R.array.wipe_cache_option)
-                .itemsCallback((dialog, view, which, text) -> {
+        getActivity().findViewById(R.id.btn_clear_cache).setOnClickListener(v -> new MaterialAlertDialogBuilder(getActivity(), R.style.CustomMaterialAlertDialog)
+                .setTitle(R.string.config_clear_cache)
+                .setItems(R.array.wipe_cache_option, (dialog, which) -> {
                     if (which == 0) {
                         new AsyncDeleteFast(getActivity()).execute();
                     } else if (which == 1) {
@@ -144,7 +140,7 @@ public class ConfigFragment extends Fragment {
 
     private static class AsyncDeleteFast extends AsyncTask<Integer, Integer, Wenku8Error.ErrorCode> {
         private WeakReference<Context> contextWeakReference;
-        private MaterialDialog md;
+        private ProgressDialogHelper md;
 
         AsyncDeleteFast(Context context) {
             this.contextWeakReference = new WeakReference<>(context);
@@ -155,13 +151,9 @@ public class ConfigFragment extends Fragment {
             super.onPreExecute();
             Context ctx = contextWeakReference.get();
             if (ctx != null) {
-                md = new MaterialDialog.Builder(ctx)
-                        .theme(Theme.LIGHT)
-                        .title(R.string.config_clear_cache)
-                        .content(R.string.dialog_content_wipe_cache_fast)
-                        .progress(true, 0)
-                        .cancelable(false)
-                        .show();
+                md = ProgressDialogHelper.show(ctx,
+                        ctx.getString(R.string.dialog_content_wipe_cache_fast),
+                        /* indeterminate= */ true, /* cancelable= */ false, /* cancelListener= */ null);
             }
         }
 
@@ -209,7 +201,7 @@ public class ConfigFragment extends Fragment {
 
     private static class AsyncDeleteSlow extends AsyncTask<Integer, Integer, Wenku8Error.ErrorCode> {
         private WeakReference<Context> contextWeakReference;
-        private MaterialDialog md;
+        private ProgressDialogHelper md;
         private boolean isLoading = false;
 
         AsyncDeleteSlow(Context context) {
@@ -221,17 +213,13 @@ public class ConfigFragment extends Fragment {
             super.onPreExecute();
             Context ctx = contextWeakReference.get();
             if (ctx != null) {
-                md = new MaterialDialog.Builder(Objects.requireNonNull(ctx))
-                        .theme(Theme.LIGHT)
-                        .cancelListener(dialog -> {
+                md = ProgressDialogHelper.show(ctx,
+                        ctx.getString(R.string.dialog_content_wipe_cache_slow),
+                        /* indeterminate= */ true, /* cancelable= */ true,
+                        /* cancelListener= */ dialog -> {
                             isLoading = false;
                             AsyncDeleteSlow.this.cancel(true);
-                        })
-                        .title(R.string.config_clear_cache)
-                        .content(R.string.dialog_content_wipe_cache_slow)
-                        .progress(true, 0)
-                        .cancelable(true)
-                        .show();
+                        });
             }
             isLoading = true;
         }

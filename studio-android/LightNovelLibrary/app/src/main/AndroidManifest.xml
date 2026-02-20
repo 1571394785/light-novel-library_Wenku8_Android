@@ -62,12 +62,6 @@
             android:screenOrientation="unspecified">
         </activity>
 
-        <!-- Novel Chapter List Activity -->
-        <activity android:name="org.mewx.wenku8.activity.NovelChapterActivity"
-            android:label="@string/action_chapter_list"
-            android:screenOrientation="unspecified">
-        </activity>
-
         <!-- Novel Review List Activity -->
         <activity android:name="org.mewx.wenku8.activity.NovelReviewListActivity"
             android:label="@string/action_review_list"
@@ -126,17 +120,6 @@
         <activity android:name="org.mewx.wenku8.activity.AboutActivity"
             android:label="@string/action_about"
             android:screenOrientation="unspecified">
-        </activity>
-
-        <!-- Directory Picker Activity-->
-        <activity
-            android:name="com.nononsenseapps.filepicker.FilePickerActivity"
-            android:theme="@style/FilePickerTheme"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.GET_CONTENT" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
         </activity>
     </application>
 </manifest>

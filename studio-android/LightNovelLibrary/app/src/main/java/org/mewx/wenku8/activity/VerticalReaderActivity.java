@@ -21,8 +21,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.afollestad.materialdialogs.MaterialDialog;
-import com.afollestad.materialdialogs.Theme;
+import org.mewx.wenku8.util.ProgressDialogHelper;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
@@ -49,7 +48,7 @@ public class VerticalReaderActivity extends AppCompatActivity {
     private String from = "";
     private int aid, cid;
     private VolumeList volumeList= null; // for extended function
-    private MaterialDialog pDialog = null;
+    private ProgressDialogHelper pDialog = null;
     private ScrollViewNoFling svTextListLayout = null;
     private LinearLayout TextListLayout = null;
     private List<OldNovelContentParser.NovelContent> nc = null;
@@ -172,23 +171,14 @@ public class VerticalReaderActivity extends AppCompatActivity {
         final asyncNovelContentTask ast = new asyncNovelContentTask();
         ast.execute(cv);
 
-        pDialog = new MaterialDialog.Builder(this)
-                .theme(Theme.LIGHT)
-                .title(R.string.sorry_old_engine_preprocess)
-                .content(R.string.sorry_old_engine_merging)
-                .progress(false, 1, true)
-                .cancelable(true)
-                .cancelListener(dialog -> {
+        pDialog = ProgressDialogHelper.show(this,
+                getString(R.string.sorry_old_engine_merging),
+                /* indeterminate= */ false, /* cancelable= */ true,
+                /* cancelListener= */ dialog -> {
                     ast.cancel(true);
                     pDialog.dismiss();
                     pDialog = null;
-                })
-                .titleColorRes(R.color.default_text_color_black)
-                .show();
-
-        pDialog.setProgress(0);
-        pDialog.setMaxProgress(1);
-        pDialog.show();
+                });
     }
 
     class asyncNovelContentTask extends AsyncTask<ContentValues, Integer, Integer> {
@@ -208,7 +198,11 @@ public class VerticalReaderActivity extends AppCompatActivity {
                     xml = new String(tempXml, "UTF-8");
                 }
 
-                nc = OldNovelContentParser.parseNovelContent(xml, size -> pDialog.setMaxProgress(size));
+                nc = OldNovelContentParser.parseNovelContent(xml, size -> {
+                    if (pDialog != null) {
+                        pDialog.setMaxProgress(size);
+                    }
+                });
                 if (nc.isEmpty()) {
                     Log.e("MewX-Main", "getNullFromParser (NovelContentParser.parseNovelContent(xml);)");
 

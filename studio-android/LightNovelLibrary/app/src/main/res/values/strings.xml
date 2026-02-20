@@ -128,6 +128,7 @@
     <string name="dialog_content_sure_to_logout">确定要解除契约吗，魔法师？</string>
     <string name="dialog_content_sync">正在同步书架（双向）……\n点击其他区域可以取消~</string>
     <string name="dialog_content_novel_title">小说完整标题</string>
+    <string name="dialog_content_volume_title">分卷完整标题</string>
     <string name="dialog_content_novel_remove_from_cloud">正在从云端书架移除……</string>
     <string name="dialog_content_saved_path">已选择的路径：\n</string>
     <string name="dialog_content_wrong_path">路径似乎不正确呢：\n%s\n是否重新选择？\n\n（注意：选择了“永远不要升级”后，可以通过清空app的存储，然后重新开始升级。）</string>
@@ -229,7 +230,7 @@
     <string name="reader_msg_please_refresh_and_retry">请更新小说信息后再尝试</string>
     <string name="action_go_to_forum">进入评论区</string>
     <string name="about_wenku8_com">轻小说文库 (Wenku8.com)</string>
-    <string name="about_version_template">版本：%s (%d)</string>
+    <string name="about_version_template">版本：%1$s (%2$d)</string>
     <string name="about_project_homepage">项目主页: https://wenku8.mewx.org</string>
     <string name="about_no_duty">所有数据来自于互联网，开发者、设计师、客服均与网站无任何关系，而且本项目完全免费，完整源代码均开放，纯凭兴趣做的app，仅供大家学习安卓应用程序制作之法，如有侵犯您的权益，请务必邮件联系，保证12小时内回复，app内会做屏蔽。</string>
     <string name="about_software_arch">软件架构</string>
@@ -246,7 +247,8 @@
     <string name="relay_warning_full">已启用第三方Wenku8中继服务，由于以下的可能原因：\n登录过期，请重新登录；\n手机网络异常，试试浏览器访问；\n运营商劫持（部分地区的10086）；\nWIFI切换到数据需等待域名解析缓存刷新（约10min）；\n服务器暂时无法响应请求；\n此时段请求服务器次数过多。\n\n该中继服务列表服务由mewx.org提供，与wenku8无关。另外，此列表数据仅供海外用户使用，并可能滞后网站24小时以上。请勿在中国大陆使用，否则后果自负，望悉知。</string>
     <string name="about_qqq">QQ交流群: 181789084</string>
     <string name="system_save_upgrading">存档升级中……</string>
-    <string name="system_save_migrated">存档升级完成，已升级%d个文件（其中%d个文件失败）。从现在开始，手机内部/外部存储中的wenku8文件夹将不再被更新。如果需要重新升级存档，清空app的存储和缓存。即将重新加载app~</string>
+    <string name="system_save_migrated">存档升级完成，已升级%1$d个文件（其中%2$d个文件失败）。从现在开始，手机内部/外部存储中的wenku8文件夹将不再被更新。如果需要重新升级存档，清空app的存储和缓存。即将重新加载app~</string>
     <string name="system_save_need_to_migrate">发现内部存储中有未升级的存档需要升级，由于权限原因，请在接下来弹出的界面中选定手机内部存储根目录里的wenku8目录并确认（注意不是同名的图片文件夹）。\n\n（注意：选择了“永远不要升级”后，可以通过清空app的存储，然后重新开始升级。）</string>
+    <string name="system_not_logged_in">您尚未登录，请登录后重试。</string>
     <string name="ad">广告</string>
 </resources>

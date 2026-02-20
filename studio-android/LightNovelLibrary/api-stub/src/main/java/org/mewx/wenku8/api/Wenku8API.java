@@ -92,6 +92,10 @@ public class Wenku8API {
         throw new UnsupportedOperationException("stub");
     }
 
+    public static ContentValues getMewxNovelList(NovelSortedBy n, int page, AppLanguage l) {
+        throw new UnsupportedOperationException("stub");
+    }
+
     public static ContentValues getNovelListWithInfo(NovelSortedBy n, int page, AppLanguage l) {
         throw new UnsupportedOperationException("stub");
     }

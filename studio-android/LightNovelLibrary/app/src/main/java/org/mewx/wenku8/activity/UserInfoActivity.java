@@ -11,9 +11,7 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.afollestad.materialdialogs.GravityEnum;
-import com.afollestad.materialdialogs.MaterialDialog;
-import com.afollestad.materialdialogs.Theme;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.makeramen.roundedimageview.RoundedImageView;
 
@@ -26,6 +24,7 @@ import org.mewx.wenku8.util.LightCache;
 import org.mewx.wenku8.network.LightNetwork;
 import org.mewx.wenku8.util.LightTool;
 import org.mewx.wenku8.network.LightUserSession;
+import org.mewx.wenku8.util.ProgressDialogHelper;
 
 import java.io.UnsupportedEncodingException;
 
@@ -69,19 +68,16 @@ public class UserInfoActivity extends BaseMaterialActivity {
 
     private class AsyncGetUserInfo extends AsyncTask<Integer, Integer, Wenku8Error.ErrorCode> {
         private int operation; // 0 is fetch data, 1 is sign
-        MaterialDialog md;
+        private ProgressDialogHelper md;
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
 
             operation = 0; // init
-            md = new MaterialDialog.Builder(UserInfoActivity.this)
-                    .theme(Theme.LIGHT)
-                    .content(R.string.system_fetching)
-                    .progress(true, 0)
-                    .cancelable(false)
-                    .show();
+            md = ProgressDialogHelper.show(UserInfoActivity.this,
+                    R.string.system_fetching,
+                    /* indeterminate= */ true, /* cancelable= */ false, /* cancelListener= */ null);
         }
 
         @Override
@@ -136,7 +132,9 @@ public class UserInfoActivity extends BaseMaterialActivity {
         protected void onPostExecute(Wenku8Error.ErrorCode errorCode) {
             super.onPostExecute(errorCode);
 
-            md.dismiss();
+            if (md != null) {
+                md.dismiss();
+            }
             if(operation == 1) {
                 // Analysis.
                 Bundle checkInParams = new Bundle();
@@ -173,25 +171,13 @@ public class UserInfoActivity extends BaseMaterialActivity {
                 tvLogout.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        new MaterialDialog.Builder(UserInfoActivity.this)
-                                .callback(new MaterialDialog.ButtonCallback() {
-                                    @Override
-                                    public void onPositive(MaterialDialog dialog) {
-                                        super.onPositive(dialog);
-                                        AsyncLogout al = new AsyncLogout();
-                                        al.execute();
-                                    }
+                        new MaterialAlertDialogBuilder(UserInfoActivity.this, R.style.CustomMaterialAlertDialog)
+                                .setMessage(R.string.dialog_content_sure_to_logout)
+                                .setPositiveButton(R.string.dialog_positive_ok, (dialog, which) -> {
+                                    AsyncLogout al = new AsyncLogout();
+                                    al.execute();
                                 })
-                                .theme(Theme.LIGHT)
-                                .titleColorRes(R.color.default_text_color_black)
-                                .backgroundColorRes(R.color.dlgBackgroundColor)
-                                .contentColorRes(R.color.dlgContentColor)
-                                .positiveColorRes(R.color.dlgPositiveButtonColor)
-                                .negativeColorRes(R.color.dlgNegativeButtonColor)
-                                .content(R.string.dialog_content_sure_to_logout)
-                                .contentGravity(GravityEnum.CENTER)
-                                .positiveText(R.string.dialog_positive_ok)
-                                .negativeText(R.string.dialog_negative_biao)
+                                .setNegativeButton(R.string.dialog_negative_biao, null)
                                 .show();
                     }
                 });
@@ -204,23 +190,18 @@ public class UserInfoActivity extends BaseMaterialActivity {
     }
 
     private class AsyncLogout extends AsyncTask<Integer, Integer, Wenku8Error.ErrorCode> {
-        MaterialDialog md;
+        private ProgressDialogHelper md;
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-
-            md = new MaterialDialog.Builder(UserInfoActivity.this)
-                    .theme(Theme.LIGHT)
-                    .content(R.string.system_fetching)
-                    .progress(true, 0)
-                    .cancelable(false)
-                    .show();
+            md = ProgressDialogHelper.show(UserInfoActivity.this,
+                    R.string.system_fetching,
+                    /* indeterminate= */ true, /* cancelable= */ false, /* cancelListener= */ null);
         }
 
         @Override
         protected Wenku8Error.ErrorCode doInBackground(Integer... params) {
-
             byte[] b = LightNetwork.LightHttpPostConnection(Wenku8API.BASE_URL, Wenku8API.getUserLogoutParams());
             if(b == null) return Wenku8Error.ErrorCode.NETWORK_ERROR;
 
@@ -258,7 +239,9 @@ public class UserInfoActivity extends BaseMaterialActivity {
                 Toast.makeText(UserInfoActivity.this, errorCode.toString(), Toast.LENGTH_SHORT).show();
 
             // terminate this activity
-            md.dismiss();
+            if (md != null) {
+                md.dismiss();
+            }
             UserInfoActivity.this.finish();
         }
 

@@ -14,9 +14,7 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.afollestad.materialdialogs.GravityEnum;
-import com.afollestad.materialdialogs.MaterialDialog;
-import com.afollestad.materialdialogs.Theme;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.firebase.analytics.FirebaseAnalytics;
 
 import org.mewx.wenku8.R;
@@ -129,21 +127,14 @@ public class SearchActivity extends BaseMaterialActivity implements MyItemClickL
 
     @Override
     public void onItemLongClick(View view, final int position) {
-        new MaterialDialog.Builder(this)
-                .onPositive((ignored1, ignored2) -> {
+        new MaterialAlertDialogBuilder(this, R.style.CustomMaterialAlertDialog)
+                .setTitle(getResources().getString(R.string.dialog_content_delete_one_search_record))
+                .setMessage(historyList.get(position))
+                .setPositiveButton(R.string.dialog_positive_likethis, (ignored1, ignored2) -> {
                     GlobalConfig.deleteSearchHistory(historyList.get(position));
                     refreshHistoryList();
                 })
-                .theme(Theme.LIGHT)
-                .backgroundColorRes(R.color.dlgBackgroundColor)
-                .contentColorRes(R.color.dlgContentColor)
-                .positiveColorRes(R.color.dlgPositiveButtonColor)
-                .negativeColorRes(R.color.dlgNegativeButtonColor)
-                .title(getResources().getString(R.string.dialog_content_delete_one_search_record))
-                .content(historyList.get(position))
-                .contentGravity(GravityEnum.CENTER)
-                .positiveText(R.string.dialog_positive_likethis)
-                .negativeText(R.string.dialog_negative_preferno)
+                .setNegativeButton(R.string.dialog_negative_preferno, null)
                 .show();
     }
 

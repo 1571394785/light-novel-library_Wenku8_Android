@@ -1,5 +1,7 @@
 package org.mewx.wenku8.global.api;
 
+import android.util.LruCache;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -15,6 +17,9 @@ import java.io.StringReader;
 public class NovelItemInfoUpdate {
     private static final String LOADING_STRING = "Loading...";
 
+    // Global cache for novel item info across ranking lists and search results.
+    private static final LruCache<Integer, NovelItemInfoUpdate> mCache = new LruCache<>(500);
+
     // Variables
     public int aid;
     public String title;
@@ -22,6 +27,7 @@ public class NovelItemInfoUpdate {
     public String status = LOADING_STRING;
     public String update = LOADING_STRING; // last update time
     public String intro_short = LOADING_STRING;
+    public String tags = ""; // loaded from new API
     public String latest_chapter = LOADING_STRING; // only used in bookshelf
 
     // static function
@@ -62,6 +68,7 @@ public class NovelItemInfoUpdate {
                             niiu.status = "";
                             niiu.update = "";
                             niiu.intro_short = "";
+                            niiu.tags = "";
                             niiu.latest_chapter = "";
 
                         } else if ("data".equals(xmlPullParser.getName())) {
@@ -102,6 +109,17 @@ public class NovelItemInfoUpdate {
 
     public boolean isInitialized() {
         return title.equals(Integer.toString(aid));
+    }
+
+    @Nullable
+    public static NovelItemInfoUpdate getFromCache(int aid) {
+        return mCache.get(aid);
+    }
+
+    public static void putToCache(@NonNull NovelItemInfoUpdate item) {
+        if (getFromCache(item.aid) == null) {
+            mCache.put(item.aid, item);
+        }
     }
 
 }

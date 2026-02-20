@@ -22,9 +22,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import com.afollestad.materialdialogs.GravityEnum;
-import com.afollestad.materialdialogs.MaterialDialog;
-import com.afollestad.materialdialogs.Theme;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import org.mewx.wenku8.MyApp;
 import org.mewx.wenku8.R;
@@ -42,6 +40,7 @@ import org.mewx.wenku8.listener.MyItemLongClickListener;
 import org.mewx.wenku8.listener.MyOptionClickListener;
 import org.mewx.wenku8.util.LightCache;
 import org.mewx.wenku8.network.LightNetwork;
+import org.mewx.wenku8.util.ProgressDialogHelper;
 import org.mewx.wenku8.util.LightTool;
 import org.mewx.wenku8.network.LightUserSession;
 
@@ -51,6 +50,10 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -122,66 +125,43 @@ public class FavFragment extends Fragment implements MyItemClickListener, MyItem
 
     @Override
     public void onOptionButtonClick(View view, final int position) {
-        new MaterialDialog.Builder(getActivity())
-                .theme(Theme.LIGHT)
-                .title(R.string.dialog_title_choose_delete_option)
-                .backgroundColorRes(R.color.dlgBackgroundColor)
-                .titleColorRes(R.color.dlgTitleColor)
-                .negativeText(R.string.dialog_negative_pass)
-                .negativeColorRes(R.color.dlgNegativeButtonColor)
-                .itemsGravity(GravityEnum.CENTER)
-                .items(R.array.cleanup_option)
-                .itemsCallback(new MaterialDialog.ListCallback() {
-                    @Override
-                    public void onSelection(MaterialDialog dialog, View view, int which, CharSequence text) {
-                        /*
-                         * 0 <string name="dialog_clear_cache">清除缓存</string>
-                         * 1 <string name="dialog_delete_book">删除这本书</string>
-                         */
-                        switch (which) {
-                            case 0:
-                                new MaterialDialog.Builder(getActivity())
-                                        .callback(new MaterialDialog.ButtonCallback() {
-                                            @Override
-                                            public void onPositive(MaterialDialog dialog) {
-                                                super.onPositive(dialog);
-                                                int aid = listNovelItemAid.get(position);
-                                                String novelFullVolume = GlobalConfig.loadFullFileFromSaveFolder("intro", aid + "-volume.xml");
-                                                if(novelFullVolume.isEmpty()) return;
-                                                List<VolumeList> listVolume = Wenku8Parser.getVolumeList(novelFullVolume);
-                                                if(listVolume.isEmpty()) return;
-                                                cleanVolumesCache(listVolume);
-                                            }
-                                        })
-                                        .theme(Theme.LIGHT)
-                                        .content(R.string.dialog_sure_to_clear_cache)
-                                        .contentGravity(GravityEnum.CENTER)
-                                        .positiveText(R.string.dialog_positive_sure)
-                                        .negativeText(R.string.dialog_negative_preferno)
-                                        .show();
-                                break;
-                            case 1:
-                                new MaterialDialog.Builder(getActivity())
-                                        .callback(new MaterialDialog.ButtonCallback() {
-                                            @Override
-                                            public void onPositive(MaterialDialog dialog) {
-                                                super.onPositive(dialog);
-                                                // Delete operation: delete from in-memory index and cloud first.
-                                                // Then, the async task will remove the deleted book from local bookshelf.
-                                                int aid = listNovelItemAid.get(position);
-                                                listNovelItemAid.remove(position);
-                                                new AsyncRemoveBookFromCloud().execute(aid);
-                                                refreshList(timecount ++);
-                                            }
-                                        })
-                                        .theme(Theme.LIGHT)
-                                        .content(R.string.dialog_content_want_to_delete)
-                                        .contentGravity(GravityEnum.CENTER)
-                                        .positiveText(R.string.dialog_positive_sure)
-                                        .negativeText(R.string.dialog_negative_preferno)
-                                        .show();
-                                break;
-                        }
+        new MaterialAlertDialogBuilder(getActivity(), R.style.CustomMaterialAlertDialog)
+                .setTitle(R.string.dialog_title_choose_delete_option)
+                .setNegativeButton(R.string.dialog_negative_pass, null)
+                .setItems(R.array.cleanup_option, (dialog, which) -> {
+                    /*
+                     * 0 <string name="dialog_clear_cache">清除缓存</string>
+                     * 1 <string name="dialog_delete_book">删除这本书</string>
+                     */
+                    switch (which) {
+                        case 0:
+                            new MaterialAlertDialogBuilder(getActivity(), R.style.CustomMaterialAlertDialog)
+                                    .setMessage(R.string.dialog_sure_to_clear_cache)
+                                    .setPositiveButton(R.string.dialog_positive_sure, (d, w) -> {
+                                        int aid = listNovelItemAid.get(position);
+                                        String novelFullVolume = GlobalConfig.loadFullFileFromSaveFolder("intro", aid + "-volume.xml");
+                                        if(novelFullVolume.isEmpty()) return;
+                                        List<VolumeList> listVolume = Wenku8Parser.getVolumeList(novelFullVolume);
+                                        if(listVolume.isEmpty()) return;
+                                        cleanVolumesCache(listVolume);
+                                    })
+                                    .setNegativeButton(R.string.dialog_negative_preferno, null)
+                                    .show();
+                            break;
+                        case 1:
+                            new MaterialAlertDialogBuilder(getActivity(), R.style.CustomMaterialAlertDialog)
+                                    .setMessage(R.string.dialog_content_want_to_delete)
+                                    .setPositiveButton(R.string.dialog_positive_sure, (d, w) -> {
+                                        // Delete operation: delete from in-memory index and cloud first.
+                                        // Then, the async task will remove the deleted book from local bookshelf.
+                                        int aid = listNovelItemAid.get(position);
+                                        listNovelItemAid.remove(position);
+                                        new AsyncRemoveBookFromCloud().execute(aid);
+                                        refreshList(timecount ++);
+                                    })
+                                    .setNegativeButton(R.string.dialog_negative_preferno, null)
+                                    .show();
+                            break;
                     }
                 })
                 .show();
@@ -275,7 +255,7 @@ public class FavFragment extends Fragment implements MyItemClickListener, MyItem
     }
 
     private class AsyncLoadAllFromCloud extends AsyncTask<Integer, Integer, Wenku8Error.ErrorCode> {
-        private MaterialDialog md;
+        private ProgressDialogHelper md;
         private boolean isLoading; // check in "doInBackground" to make sure to continue or not
         private boolean forceLoad = false;
 
@@ -286,19 +266,13 @@ public class FavFragment extends Fragment implements MyItemClickListener, MyItem
             loadAllLocal();
 
             isLoading = true;
-            md = new MaterialDialog.Builder(getActivity())
-                    .theme(Theme.LIGHT)
-                    .content(R.string.dialog_content_sync)
-                    .progress(false, 1, true)
-                    .cancelable(true)
-                    .cancelListener(dialog -> {
+            md = ProgressDialogHelper.show(getActivity(),
+                    getString(R.string.dialog_content_sync),
+                    /* indeterminate= */ false, /* cancelable= */ true, /* cancelListener= */
+                    dialog -> {
                         isLoading = false;
                         md.dismiss();
-                    })
-                    .show();
-            md.setProgress(0);
-            md.setMaxProgress(0);
-            md.show();
+                    });
         }
 
         @Override
@@ -371,39 +345,74 @@ public class FavFragment extends Fragment implements MyItemClickListener, MyItem
             for(Integer aid : listDiff) {
                 if(!isLoading) return Wenku8Error.ErrorCode.USER_CANCELLED_TASK;
 
-                // download general file
-                String volumeXml, introXml;
+                // download general file using parallel requests
+                String volumeXml, introXml, fullIntroXml;
                 List<VolumeList> vl;
                 NovelItemMeta ni;
                 try {
-                    // fetch volumes
-                    ContentValues cv = Wenku8API.getNovelIndex(aid, GlobalConfig.getCurrentLang());
-                    byte[] tempVolumeXml = LightNetwork.LightHttpPostConnection(Wenku8API.BASE_URL, cv);
-                    if(!isLoading) return Wenku8Error.ErrorCode.USER_CANCELLED_TASK;
-                    if(tempVolumeXml == null) return Wenku8Error.ErrorCode.NETWORK_ERROR;
+                    // Create executor for parallel requests.
+                    ExecutorService executor = Executors.newFixedThreadPool(3);
+                    
+                    // Task 1: Fetch volumes.
+                    Callable<byte[]> volumeTask = () -> {
+                        if(!isLoading) return null;
+                        ContentValues cv = Wenku8API.getNovelIndex(aid, GlobalConfig.getCurrentLang());
+                        return LightNetwork.LightHttpPostConnection(Wenku8API.BASE_URL, cv);
+                    };
+                    
+                    // Task 2: Fetch intro.
+                    Callable<byte[]> introTask = () -> {
+                        if(!isLoading) return null;
+                        return LightNetwork.LightHttpPostConnection(Wenku8API.BASE_URL,
+                                Wenku8API.getNovelFullMeta(aid, GlobalConfig.getCurrentLang()));
+                    };
+                    
+                    // Task 3: Fetch full intro (needs to be done after parsing meta, so we'll do it separately)
+                    // Submit first 2 tasks.
+                    Future<byte[]> volumeFuture = executor.submit(volumeTask);
+                    Future<byte[]> introFuture = executor.submit(introTask);
+                    // Wait for results.
+                    byte[] tempVolumeXml = volumeFuture.get();
+                    byte[] tempIntroXml = introFuture.get();
+                    if(!isLoading) {
+                        executor.shutdown();
+                        return Wenku8Error.ErrorCode.USER_CANCELLED_TASK;
+                    }
+                    if(tempVolumeXml == null || tempIntroXml == null) {
+                        executor.shutdown();
+                        return Wenku8Error.ErrorCode.NETWORK_ERROR;
+                    }
+                    
+                    // Parse into structures.
                     volumeXml = new String(tempVolumeXml, "UTF-8");
-
-                    // fetch intro
-                    if(!isLoading) return Wenku8Error.ErrorCode.USER_CANCELLED_TASK;
-
-                    // use short intro
-                    byte[] tempIntroXml = LightNetwork.LightHttpPostConnection(Wenku8API.BASE_URL,
-                            Wenku8API.getNovelFullMeta(aid, GlobalConfig.getCurrentLang()));
-                    if (tempIntroXml == null) return Wenku8Error.ErrorCode.NETWORK_ERROR;
                     introXml = new String(tempIntroXml, "UTF-8");
-
-                    // parse into structures
                     vl = Wenku8Parser.getVolumeList(volumeXml);
                     ni = Wenku8Parser.parseNovelFullMeta(introXml);
-                    if (vl.isEmpty() || ni == null) return Wenku8Error.ErrorCode.XML_PARSE_FAILED;
+                    if (vl.isEmpty() || ni == null) {
+                        executor.shutdown();
+                        return Wenku8Error.ErrorCode.XML_PARSE_FAILED;
+                    }
 
-                    if(!isLoading) return Wenku8Error.ErrorCode.USER_CANCELLED_TASK;
-                    cv = Wenku8API.getNovelFullIntro(ni.aid, GlobalConfig.getCurrentLang());
-                    byte[] tempFullIntro = LightNetwork.LightHttpPostConnection(Wenku8API.BASE_URL, cv);
+                    // Now fetch full intro (depends on ni.aid from parsing).
+                    if(!isLoading) {
+                        executor.shutdown();
+                        return Wenku8Error.ErrorCode.USER_CANCELLED_TASK;
+                    }
+                    
+                    final int finalAid = ni.aid;
+                    Callable<byte[]> fullIntroTask = () -> {
+                        if(!isLoading) return null;
+                        ContentValues cv = Wenku8API.getNovelFullIntro(finalAid, GlobalConfig.getCurrentLang());
+                        return LightNetwork.LightHttpPostConnection(Wenku8API.BASE_URL, cv);
+                    };
+                    Future<byte[]> fullIntroFuture = executor.submit(fullIntroTask);
+                    byte[] tempFullIntro = fullIntroFuture.get();
+                    executor.shutdown();
+
                     if (tempFullIntro == null) return Wenku8Error.ErrorCode.NETWORK_ERROR;
                     ni.fullIntro = new String(tempFullIntro, "UTF-8");
 
-                    // write into saved file, save from volum -> meta -> add2bookshelf
+                    // Write into saved file, save from volum -> meta -> add2bookshelf.
                     GlobalConfig.writeFullFileIntoSaveFolder("intro", aid + "-volume.xml", volumeXml);
                     GlobalConfig.writeFullFileIntoSaveFolder("intro", aid + "-introfull.xml", ni.fullIntro);
                     GlobalConfig.writeFullFileIntoSaveFolder("intro", aid + "-intro.xml", introXml);
@@ -452,7 +461,11 @@ public class FavFragment extends Fragment implements MyItemClickListener, MyItem
             super.onPostExecute(errorCode);
 
             isLoading = false;
-            md.dismiss();
+            try {
+                md.dismiss();
+            } catch (Exception e) {
+                // Ignore the NullPointerException due to dialog is null or IllegalArgumentException due to View not attached to window manager.
+            }
             if(errorCode != Wenku8Error.ErrorCode.SYSTEM_1_SUCCEEDED) {
                 Toast.makeText(MyApp.getContext(), errorCode.toString(), Toast.LENGTH_SHORT).show();
                 refreshList(timecount ++);
@@ -464,18 +477,15 @@ public class FavFragment extends Fragment implements MyItemClickListener, MyItem
     }
 
     class AsyncRemoveBookFromCloud extends AsyncTask<Integer, Integer, Wenku8Error.ErrorCode> {
-        MaterialDialog md;
+        ProgressDialogHelper md;
         int aid;
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            md = new MaterialDialog.Builder(getActivity())
-                    .theme(Theme.LIGHT)
-                    .content(R.string.dialog_content_novel_remove_from_cloud)
-                    .contentColorRes(R.color.dlgContentColor)
-                    .progress(true, 0)
-                    .show();
+            md = ProgressDialogHelper.show(getActivity(),
+                    getString(R.string.dialog_content_novel_remove_from_cloud),
+                    /* indeterminate= */ true, /* cancelable= */ false, /* cancelListener= */ null);
         }
 
         @Override
@@ -531,7 +541,11 @@ public class FavFragment extends Fragment implements MyItemClickListener, MyItem
         protected void onPostExecute(Wenku8Error.ErrorCode err) {
             super.onPostExecute(err);
 
-            md.dismiss();
+            try {
+                md.dismiss();
+            } catch (Exception e) {
+                // Ignore the NullPointerException due to dialog is null or IllegalArgumentException due to View not attached to window manager.
+            }
             if (err == Wenku8Error.ErrorCode.SYSTEM_1_SUCCEEDED) {
                 Toast.makeText(getActivity(), getResources().getString(R.string.bookshelf_removed), Toast.LENGTH_SHORT).show();
                 loadAllLocal();

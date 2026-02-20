@@ -11,13 +11,13 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.afollestad.materialdialogs.MaterialDialog;
-import com.afollestad.materialdialogs.Theme;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.firebase.analytics.FirebaseAnalytics;
 
 import org.mewx.wenku8.R;
 import org.mewx.wenku8.api.Wenku8API;
 import org.mewx.wenku8.network.LightNetwork;
+import org.mewx.wenku8.network.LightUserSession;
 
 import java.lang.ref.WeakReference;
 import java.nio.charset.Charset;
@@ -84,6 +84,10 @@ public class NovelReviewNewPostActivity extends BaseMaterialActivity {
         if (menuItem.getItemId() == android.R.id.home) {
             onBackPressed();
         } else if (menuItem.getItemId() == R.id.action_submit) {
+            if (!LightUserSession.getLogStatus()) {
+                Toast.makeText(this, R.string.system_not_logged_in, Toast.LENGTH_SHORT).show();
+                return true;
+            }
             String title = etTitle.getText().toString();
             String content = etContent.getText().toString();
             if (noBadWords(title) && noBadWords(content)) {
@@ -100,16 +104,13 @@ public class NovelReviewNewPostActivity extends BaseMaterialActivity {
 
         if (!etTitle.getText().toString().trim().isEmpty() ||
                 !etContent.getText().toString().trim().isEmpty()) {
-            new MaterialDialog.Builder(this)
-                    .theme(Theme.LIGHT)
-                    .title(R.string.system_warning)
-                    .content(R.string.system_review_draft_will_be_lost)
-                    .positiveText(R.string.dialog_positive_ok)
-                    .negativeText(R.string.dialog_negative_preferno)
-                    .negativeColorRes(R.color.menu_text_color)
-                    .onPositive((dialog, which) -> {
+            new MaterialAlertDialogBuilder(this, R.style.CustomMaterialAlertDialog)
+                    .setTitle(R.string.system_warning)
+                    .setMessage(R.string.system_review_draft_will_be_lost)
+                    .setPositiveButton(R.string.dialog_positive_ok, (dialog, which) -> {
                         super.onBackPressed();
                     })
+                    .setNegativeButton(R.string.dialog_negative_preferno, null)
                     .show();
         } else {
             super.onBackPressed();

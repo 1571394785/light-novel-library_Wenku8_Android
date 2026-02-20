@@ -11,23 +11,31 @@
         <item name="android:textColor">@color/default_white</item>
     </style>
 
-    <!-- You can also inherit from NNF_BaseTheme.Light -->
-    <style name="FilePickerTheme" parent="NNF_BaseTheme">
-        <!-- Set these to match your theme -->
+    <style name="CustomMaterialAlertDialog" parent="Theme.Material3.Light.Dialog.Alert">
         <item name="colorPrimary">@color/myPrimaryColor</item>
-        <item name="colorPrimaryDark">@color/myPrimaryDarkColor</item>
-        <item name="colorAccent">@color/myPrimaryColor</item>
+        <item name="colorSurface">@color/default_white</item>
+        <item name="colorOnSurface">@color/myTextPrimaryColor</item> 
+        <item name="colorPrimary">@color/myPrimaryColor</item>
+        <item name="android:backgroundDimAmount">0.5</item>
 
-        <!-- Need to set this also to style create folder dialog -->
-        <item name="alertDialogTheme">@style/FilePickerAlertDialogTheme</item>
-
-        <!-- If you want to set a specific toolbar theme, do it here -->
-        <!-- <item name="nnf_toolbarTheme">@style/ThemeOverlay.AppCompat.Dark.ActionBar</item> -->
+        <item name="materialAlertDialogTitleTextStyle">@style/CustomMaterialAlertDialogTitleText</item>
+        <item name="buttonBarPositiveButtonStyle">@style/DialogPositiveButtonStyle</item>
+        <item name="buttonBarNegativeButtonStyle">@style/DialogNegativeButtonStyle</item>
     </style>
 
-    <style name="FilePickerAlertDialogTheme" parent="Theme.AppCompat.Dialog.Alert">
-        <item name="colorPrimary">@color/myPrimaryColor</item>
-        <item name="colorPrimaryDark">@color/myPrimaryDarkColor</item>
-        <item name="colorAccent">@color/myPrimaryColor</item>
+    <style name="CustomMaterialAlertDialogTitleText" parent="MaterialAlertDialog.Material3.Title.Text">
+        <item name="android:textColor">@color/dlgTitleColor</item>
+        <item name="android:textSize">20sp</item>
     </style>
+
+    <style name="DialogPositiveButtonStyle" parent="Widget.Material3.Button.TextButton.Dialog">
+        <item name="android:textColor">@color/dlgPositiveButtonColor</item>
+        <item name="rippleColor">@color/dlgPositiveButtonColor</item> 
+    </style>
+
+    <style name="DialogNegativeButtonStyle" parent="Widget.Material3.Button.TextButton.Dialog">
+        <item name="android:textColor">@color/dlgNegativeButtonColor</item>
+        <item name="rippleColor">@color/dlgNegativeButtonColor</item>
+    </style>
+
 </resources>

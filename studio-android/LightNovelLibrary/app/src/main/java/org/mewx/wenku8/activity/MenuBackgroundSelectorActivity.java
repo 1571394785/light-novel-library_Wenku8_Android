@@ -16,7 +16,6 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.google.firebase.analytics.FirebaseAnalytics;
-import com.nononsenseapps.filepicker.FilePickerActivity;
 
 import org.mewx.wenku8.R;
 import org.mewx.wenku8.global.GlobalConfig;
@@ -77,7 +76,7 @@ public class MenuBackgroundSelectorActivity extends BaseMaterialActivity {
             intent.setAction(Intent.ACTION_OPEN_DOCUMENT);
             intent.addCategory(Intent.CATEGORY_OPENABLE);
             intent.setType("image/*");
-            startActivityForResult(intent, 1);
+            startActivityForResult(intent, 0);
         }
         return super.onOptionsItemSelected(menuItem);
     }
@@ -92,24 +91,6 @@ public class MenuBackgroundSelectorActivity extends BaseMaterialActivity {
         }
 
         if (requestCode == 0) {
-            // get ttf path
-            if (data.getBooleanExtra(FilePickerActivity.EXTRA_ALLOW_MULTIPLE, false)) {
-                ClipData clip = data.getClipData();
-                if (clip != null) {
-                    for (int i = 0; i < clip.getItemCount(); i++) {
-                        Uri uri = clip.getItemAt(i).getUri();
-                        // Do something with the URI
-                        runSaveCustomMenuBackground(uri.toString().replaceAll("file://", ""));
-                    }
-                }
-            } else {
-                Uri uri = data.getData();
-                // Do something with the URI
-                if (uri != null) {
-                    runSaveCustomMenuBackground(uri.toString().replaceAll("file://", ""));
-                }
-            }
-        } else if (requestCode == 1) {
             // API >= 19, from System file picker.
             Uri mediaUri = data.getData();
             if (mediaUri == null || mediaUri.getPath() == null) {
