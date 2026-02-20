@@ -28,9 +28,8 @@ import org.mewx.wenku8.activity.NovelInfoActivity;
 import org.mewx.wenku8.adapter.NovelItemAdapterUpdate;
 import org.mewx.wenku8.async.CheckAppNewVersion;
 import org.mewx.wenku8.global.GlobalConfig;
-import org.mewx.wenku8.global.api.MewxArticleListParser;
 import org.mewx.wenku8.global.api.NovelItemInfoUpdate;
-import org.mewx.wenku8.global.api.NovelListWithInfoParser;
+import org.mewx.wenku8.global.api.custom.NovelListWithInfoParser;
 import org.mewx.wenku8.api.Wenku8API;
 import org.mewx.wenku8.listener.MyItemClickListener;
 import org.mewx.wenku8.listener.MyItemLongClickListener;
@@ -221,7 +220,7 @@ public class LatestFragment extends Fragment implements MyItemClickListener, MyI
                     return null;
                 }
                 String json = new String(tempResult, "UTF-8");
-                MewxArticleListParser.Result result = MewxArticleListParser.parse(json);
+                NovelListWithInfoParser.Result result = NovelListWithInfoParser.parse(json);
                 if (result == null || result.items.isEmpty()) {
                     return null;
                 }

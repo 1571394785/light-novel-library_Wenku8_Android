@@ -1,6 +1,5 @@
-package org.mewx.wenku8.global.api;
+package org.mewx.wenku8.global.api.custom;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import org.json.JSONArray;
@@ -10,7 +9,9 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MewxArticleListParser {
+import org.mewx.wenku8.global.api.NovelItemInfoUpdate;
+
+public class NovelListWithInfoParser {
     public static class Result {
         public int pageNum;
         public List<NovelItemInfoUpdate> items;

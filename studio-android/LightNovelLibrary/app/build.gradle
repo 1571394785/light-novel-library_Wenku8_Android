@@ -94,6 +94,9 @@ android {
     buildFeatures {
         buildConfig true
     }
+    testOptions {
+        unitTests.returnDefaultValues = true
+    }
 }
 
 dependencies {
@@ -125,6 +128,7 @@ dependencies {
     androidTestImplementation 'com.linkedin.dexmaker:dexmaker-mockito:2.28.4'
 
     testImplementation 'junit:junit:4.13.2'
+    testImplementation 'org.json:json:20231013'
     testImplementation 'org.mockito:mockito-core:5.4.0'
 }
 
