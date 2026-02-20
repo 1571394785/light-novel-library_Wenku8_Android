@@ -139,7 +139,7 @@ public class LatestFragment extends Fragment implements MyItemClickListener, MyI
 
         // fetch list
         AsyncLoadLatestList ast = new AsyncLoadLatestList();
-        ast.execute(Wenku8API.getMewxArticleList(Wenku8API.NovelSortedBy.lastUpdate, page,
+        ast.execute(Wenku8API.getMewxNovelList(Wenku8API.NovelSortedBy.lastUpdate, page,
                 GlobalConfig.getCurrentLang()));
     }
 
