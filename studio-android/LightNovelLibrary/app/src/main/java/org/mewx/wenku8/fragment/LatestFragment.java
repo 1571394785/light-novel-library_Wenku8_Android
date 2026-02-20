@@ -191,16 +191,20 @@ public class LatestFragment extends Fragment implements MyItemClickListener, MyI
 
             // 滚动到一半的时候加载，即：剩余3个元素的时候就加载
             if (!isLoading.get() && visibleItemCount + pastVisibleItems + 3 >= totalItemCount) {
-                // load more toast
-                Snackbar.make(mNovelItemListView, getResources().getString(R.string.list_loading)
-                                + "(" + currentPage + "/" + totalPage + ")",
-                        Snackbar.LENGTH_SHORT).show();
-
                 // load more thread
                 if (currentPage <= totalPage) {
+                    // load more toast
+                    Snackbar.make(mNovelItemListView, getResources().getString(R.string.list_loading)
+                                    + "(" + currentPage + "/" + totalPage + ")",
+                            Snackbar.LENGTH_SHORT).show();
+
                     loadNovelList(currentPage);
                 } else {
-                    Snackbar.make(mNovelItemListView, getResources().getText(R.string.loading_done), Snackbar.LENGTH_SHORT).show();
+                    // Set isLoading to true to prevent repeating the "loading_done" snackbar
+                    // and causing an infinite UI update loop.
+                    if (isLoading.compareAndSet(false, true)) {
+                        Snackbar.make(mNovelItemListView, getResources().getText(R.string.loading_done), Snackbar.LENGTH_SHORT).show();
+                    }
                 }
             }
         }
