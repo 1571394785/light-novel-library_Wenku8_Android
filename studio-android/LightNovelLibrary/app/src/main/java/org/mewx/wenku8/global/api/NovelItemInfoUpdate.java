@@ -15,7 +15,7 @@ import java.io.StringReader;
  * The updated version of novel item info.
  */
 public class NovelItemInfoUpdate {
-    private static final String LOADING_STRING = "Loading...";
+    public static final String LOADING_STRING = "Loading...";
 
     // Global cache for novel item info across ranking lists and search results.
     private static final LruCache<Integer, NovelItemInfoUpdate> mCache = new LruCache<>(500);

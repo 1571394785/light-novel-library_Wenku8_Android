@@ -24,6 +24,7 @@ import org.mewx.wenku8.listener.MyItemLongClickListener;
 import org.mewx.wenku8.listener.MyOptionClickListener;
 import org.mewx.wenku8.util.LightCache;
 import org.mewx.wenku8.network.LightNetwork;
+import org.mewx.wenku8.global.api.NovelItemInfoUpdate;
 
 import java.io.File;
 import java.io.UnsupportedEncodingException;
@@ -73,6 +74,9 @@ public class NovelItemAdapterUpdate extends RecyclerView.Adapter<NovelItemAdapte
         // Check cache first
         NovelItemInfoUpdate cached = NovelItemInfoUpdate.getFromCache(mDataset.get(i).aid);
         if (cached != null) {
+            if (GlobalConfig.testInBookshelf() && NovelItemInfoUpdate.LOADING_STRING.equals(cached.latest_chapter) && !NovelItemInfoUpdate.LOADING_STRING.equals(mDataset.get(i).latest_chapter)) {
+                cached.latest_chapter = mDataset.get(i).latest_chapter;
+            }
             mDataset.set(i, cached);
             refreshAllFields(viewHolder, cached);
         } else {
