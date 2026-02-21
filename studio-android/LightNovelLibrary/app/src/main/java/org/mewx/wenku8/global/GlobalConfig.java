@@ -805,13 +805,25 @@ public class GlobalConfig {
         return true; // file exist
     }
 
+    public static boolean saveNovelCoverImage(@NonNull String fileName, @NonNull byte[] fileContent) {
+        String defaultFullPath = getFirstFullSaveFilePath() + imgsSaveFolderName + File.separator + fileName;
+        String fallbackFullPath = getSecondFullSaveFilePath() + imgsSaveFolderName + File.separator + fileName;
+
+        if (!LightCache.testFileExist(defaultFullPath) && !LightCache.testFileExist(fallbackFullPath)) {
+            // neither of the file exist
+            return LightCache.saveFile(defaultFullPath, fileContent, true)
+                    || LightCache.saveFile(fallbackFullPath, fileContent, true);
+        }
+        return true; // file exist
+    }
+
     /**
-     * Gets available local saving path of target image.
+     * Gets existing local saving path of target image.
      *
      * @param fileName just need the fileName
      * @return direct fileName or just null
      */
-    public static String getAvailableNovelContentImagePath(String fileName) {
+    public static String getExistingNovelContentImagePath(String fileName) {
         String defaultFullPath = getFirstFullSaveFilePath() + imgsSaveFolderName + File.separator + fileName;
         String fallbackFullPath = getSecondFullSaveFilePath() + imgsSaveFolderName + File.separator + fileName;
 

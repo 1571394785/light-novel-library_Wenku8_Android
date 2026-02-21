@@ -397,13 +397,13 @@ public class WenkuReaderPageView extends View {
             BitmapInfo bitmapInfo = params[0];
 
             String imgFileName = GlobalConfig.generateImageFileNameByURL(paginator.getLineInfoList().get(bitmapInfo.idxLineInfo).text());
-            if(GlobalConfig.getAvailableNovelContentImagePath(imgFileName) == null) {
+            if(GlobalConfig.getExistingNovelContentImagePath(imgFileName) == null) {
                 if (!GlobalConfig.saveNovelContentImage(paginator.getLineInfoList().get(bitmapInfo.idxLineInfo).text())) {
                     return Wenku8Error.ErrorCode.NETWORK_ERROR;
                 }
 
                 // Double check if the image exists in local storage.
-                if (GlobalConfig.getAvailableNovelContentImagePath(imgFileName) == null) {
+                if (GlobalConfig.getExistingNovelContentImagePath(imgFileName) == null) {
                     return Wenku8Error.ErrorCode.STORAGE_ERROR;
                 }
 
@@ -412,7 +412,7 @@ public class WenkuReaderPageView extends View {
             }
 
             ImageSize targetSize = new ImageSize(bitmapInfo.width, bitmapInfo.height); // result Bitmap will be fit to this size
-            bitmapInfo.bm = ImageLoader.getInstance().loadImageSync("file://" + GlobalConfig.getAvailableNovelContentImagePath(imgFileName), targetSize);
+            bitmapInfo.bm = ImageLoader.getInstance().loadImageSync("file://" + GlobalConfig.getExistingNovelContentImagePath(imgFileName), targetSize);
             if (bitmapInfo.bm == null) {
                 return Wenku8Error.ErrorCode.IMAGE_LOADING_ERROR;
             }
@@ -452,7 +452,7 @@ public class WenkuReaderPageView extends View {
         }
         else {
             Intent intent = new Intent(activity, ViewImageDetailActivity.class);
-            intent.putExtra("path", GlobalConfig.getAvailableNovelContentImagePath(GlobalConfig.generateImageFileNameByURL(paginator.getLineInfoList().get(bitmapInfoList.get(0).idxLineInfo).text())));
+            intent.putExtra("path", GlobalConfig.getExistingNovelContentImagePath(GlobalConfig.generateImageFileNameByURL(paginator.getLineInfoList().get(bitmapInfoList.get(0).idxLineInfo).text())));
             activity.startActivity(intent);
             activity.overridePendingTransition(R.anim.fade_in, R.anim.hold); // fade in animation
         }

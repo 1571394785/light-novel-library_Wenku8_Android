@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.graphics.LinearGradient;
 import android.graphics.Shader;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import androidx.appcompat.app.AppCompatActivity;
@@ -267,7 +266,7 @@ public class VerticalReaderActivity extends AppCompatActivity {
 
                         // async loader
                         final String imgFileName = GlobalConfig.generateImageFileNameByURL(nc.get(i).content);
-                        final String path = GlobalConfig.getAvailableNovelContentImagePath(imgFileName);
+                        final String path = GlobalConfig.getExistingNovelContentImagePath(imgFileName);
 
                         if (path != null) {
                             ImageLoader.getInstance().displayImage(
@@ -288,7 +287,7 @@ public class VerticalReaderActivity extends AppCompatActivity {
                                 protected String doInBackground(String... params) {
                                     GlobalConfig.saveNovelContentImage(params[0]);
                                     String name = GlobalConfig.generateImageFileNameByURL(params[0]);
-                                    return GlobalConfig.getAvailableNovelContentImagePath(name);
+                                    return GlobalConfig.getExistingNovelContentImagePath(name);
                                 }
 
                                 @Override

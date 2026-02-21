@@ -8,7 +8,6 @@ import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -54,6 +53,9 @@ import org.mewx.wenku8.network.LightNetwork;
 import org.mewx.wenku8.util.LightTool;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
@@ -332,6 +334,11 @@ public class NovelInfoActivity extends BaseMaterialActivity {
                 showDirectJumpToReaderDialog( mNovelItemMeta.latestSectionCid);
             else
                 Toast.makeText(this, getResources().getText(R.string.reader_msg_please_refresh_and_retry), Toast.LENGTH_SHORT).show();
+        });
+
+        ivNovelCover.setOnClickListener(v -> {
+            if (runLoadingChecker()) return;
+            fetchAndShowNovelCover();
         });
 
         mSideSheetHeader.setOnClickListener(v -> {
@@ -1258,5 +1265,88 @@ public class NovelInfoActivity extends BaseMaterialActivity {
         spb.setVisibility(View.VISIBLE);
         FetchInfoAsyncTask fetchInfoAsyncTask = new FetchInfoAsyncTask();
         fetchInfoAsyncTask.execute();
+    }
+
+    // TODO: delete me
+    public class ImageDebugUtils {
+
+        private static final String TAG = "ImageDebug";
+
+        public static void dumpImageDetails(File imageFile) {
+            if (!imageFile.exists()) {
+                Log.e(TAG, "File does not exist: " + imageFile.getAbsolutePath());
+                return;
+            }
+
+            Log.d(TAG, "File Size: " + (imageFile.length() / 1024) + " KB");
+
+            try (InputStream is = new FileInputStream(imageFile)) {
+                byte[] header = new byte[12]; // Read the first 12 bytes
+                int bytesRead = is.read(header);
+
+                if (bytesRead != -1) {
+                    StringBuilder hexString = new StringBuilder();
+                    for (int i = 0; i < bytesRead; i++) {
+                        hexString.append(String.format("%02X ", header[i]));
+                    }
+
+                    String hex = hexString.toString().trim();
+                    Log.d(TAG, "Magic Bytes (Hex): " + hex);
+                    Log.d(TAG, "Guessed Format: " + guessFormatFromHex(hex));
+
+                } else {
+                    Log.e(TAG, "File is empty!");
+                }
+            } catch (IOException e) {
+                Log.e(TAG, "Failed to read image file", e);
+            }
+        }
+
+        private static String guessFormatFromHex(String hex) {
+            if (hex.startsWith("FF D8 FF")) return "JPEG";
+            if (hex.startsWith("89 50 4E 47")) return "PNG";
+            if (hex.startsWith("47 49 46 38")) return "GIF (Not supported by BitmapRegionDecoder!)";
+            if (hex.startsWith("52 49 46 46") && hex.contains("57 45 42 50")) return "WebP";
+            if (hex.startsWith("00 00 00") && hex.contains("66 74 79 70")) return "HEIC / HEIF / MP4";
+            if (hex.startsWith("3C 3F 78 6D") || hex.startsWith("3C 73 76 67")) return "SVG / XML (Not supported!)";
+            return "Unknown Format";
+        }
+    }
+
+    private void fetchAndShowNovelCover() {
+        pDialog = ProgressDialogHelper.show(NovelInfoActivity.this,
+                getString(R.string.system_loading_please_wait),
+                /* indeterminate= */ true, /* cancelable= */ true,
+                /* cancelListener= */ dialog -> {
+                    if (pDialog != null) pDialog.dismiss();
+                    pDialog = null;
+                });
+
+        new Thread(() -> {
+            try {
+                ContentValues cv = Wenku8API.getNovelCover(aid);
+                byte[] data = LightNetwork.LightHttpPostConnection(Wenku8API.BASE_URL, cv);
+                if (data == null || data.length == 0) throw new Exception("Fetch failed");
+
+                String fileName = "full_cover_" + aid + ".jpg";
+                if (GlobalConfig.saveNovelCoverImage(fileName, data)) {
+                    runOnUiThread(() -> {
+                        if (pDialog != null) pDialog.dismiss();
+                        Intent intent = new Intent(NovelInfoActivity.this, ViewImageDetailActivity.class);
+                        // TODO: delete me
+                        ImageDebugUtils.dumpImageDetails(new File(GlobalConfig.getExistingNovelContentImagePath(fileName)));
+                        intent.putExtra("path", GlobalConfig.getExistingNovelContentImagePath(fileName));
+                        startActivity(intent);
+                    });
+                } else {
+                    throw new Exception("Save failed");
+                }
+            } catch (Exception e) {
+                runOnUiThread(() -> {
+                    if (pDialog != null) pDialog.dismiss();
+                    Toast.makeText(NovelInfoActivity.this, "Failed to load high-res cover", Toast.LENGTH_SHORT).show();
+                });
+            }
+        }).start();
     }
 }
