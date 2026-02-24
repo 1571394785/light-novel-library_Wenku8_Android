@@ -272,7 +272,7 @@ public class WenkuReaderPageView extends View {
     }
 
     private void drawBackground(Canvas canvas) {
-        if (GlobalConfig.isEbookModeEnabled()) {
+        if (GlobalConfig.isEinkModeEnabled()) {
             Paint paintBackground = new Paint();
             paintBackground.setColor(0xFFFFFFFF);
             canvas.drawRect(0, 0, screenSize.x, screenSize.y, paintBackground);

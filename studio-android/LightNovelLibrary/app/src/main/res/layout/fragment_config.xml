@@ -180,15 +180,15 @@
                 android:layout_alignParentEnd="true" />
         </RelativeLayout>
 
-        <!-- Layout EbookMode -->
+        <!-- Layout EinkMode -->
         <RelativeLayout
-            android:id="@+id/btn_ebook_mode"
+            android:id="@+id/eink_mode_config"
             android:layout_width="match_parent"
             android:layout_height="48dp"
             android:clickable="true"
             android:background="@drawable/btn_menu_item">
             <ImageView
-                android:id="@+id/image_ebook_mode"
+                android:id="@+id/image_eink_mode"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:paddingLeft="16dp"
@@ -200,12 +200,12 @@
                 android:layout_marginLeft="32dp"
                 android:textSize="16sp"
                 android:layout_centerVertical="true"
-                android:layout_toRightOf="@id/image_ebook_mode"
+                android:layout_toRightOf="@id/image_eink_mode"
                 android:textColor="@color/dlgTitleColor"
-                android:text="@string/config_ebook_mode"/>
+                android:text="@string/config_eink_mode"/>
 
             <androidx.appcompat.widget.SwitchCompat
-                android:id="@+id/switch_ebook_mode"
+                android:id="@+id/switch_eink_mode"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:paddingRight="16dp"

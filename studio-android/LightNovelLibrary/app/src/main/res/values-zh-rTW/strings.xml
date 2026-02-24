@@ -138,7 +138,7 @@
     <string name="config_choose_language">簡繁切換</string>
     <string name="config_clear_cache">清除緩存</string>
     <string name="config_navigation_drawer_wallpaper">側欄壁紙</string>
-    <string name="config_ebook_mode">電子書模式（減弱動畫效果）</string>
+    <string name="config_eink_mode">電紙書模式（關閉動畫效果）</string>
     <string name="config_check_update">檢查更新</string>
     <string name="config_about">關於</string>
     <string name="login_username">用戶名/郵箱</string>

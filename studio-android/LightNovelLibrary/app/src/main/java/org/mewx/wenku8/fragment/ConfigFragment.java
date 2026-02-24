@@ -132,12 +132,11 @@ public class ConfigFragment extends Fragment {
             startActivity(intent);
         });
         
-        // Initialize ebook mode switch
-        SwitchCompat switchEbookMode = getActivity().findViewById(R.id.switch_ebook_mode);
-        String ebookMode = GlobalConfig.getFromAllSetting(GlobalConfig.SettingItems.ebook_mode);
-        switchEbookMode.setChecked("true".equals(ebookMode));
-        switchEbookMode.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            GlobalConfig.setToAllSetting(GlobalConfig.SettingItems.ebook_mode, String.valueOf(isChecked));
+        // E-ink mode switch.
+        SwitchCompat switchEinkMode = getActivity().findViewById(R.id.switch_eink_mode);
+        switchEinkMode.setChecked(GlobalConfig.isEinkModeEnabled());
+        switchEinkMode.setOnCheckedChangeListener((unusedButtonView, checked) -> {
+            GlobalConfig.setToAllSetting(GlobalConfig.SettingItems.eink_mode, checked ? "1" : "0");
         });
         
         getActivity().findViewById(R.id.btn_check_update).setOnClickListener(v -> {

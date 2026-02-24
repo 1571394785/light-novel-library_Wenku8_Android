@@ -163,7 +163,7 @@
     <string name="config_choose_language">简繁切换</string>
     <string name="config_clear_cache">清除缓存</string>
     <string name="config_navigation_drawer_wallpaper">侧栏壁纸</string>
-    <string name="config_ebook_mode">电子书模式（减弱动画效果）</string>
+    <string name="config_eink_mode">电纸书模式（关闭动画效果）</string>
     <string name="config_check_update">检查更新</string>
     <string name="config_about">关于</string>
     <string name="login_username">用户名/邮箱</string>
