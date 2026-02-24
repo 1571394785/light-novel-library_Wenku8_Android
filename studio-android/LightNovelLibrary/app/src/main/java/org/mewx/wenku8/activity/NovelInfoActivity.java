@@ -997,14 +997,14 @@ public class NovelInfoActivity extends BaseMaterialActivity {
                 Toast.makeText(NovelInfoActivity.this, R.string.system_manually_cancelled, Toast.LENGTH_LONG).show();
                 if (pDialog != null)
                     pDialog.dismiss();
-                onResume();
+                refreshVolumeListUI();
                 isLoading = false;
                 return;
             } else if (result == Wenku8Error.ErrorCode.NETWORK_ERROR) {
                 Toast.makeText(NovelInfoActivity.this, getResources().getString(R.string.system_network_error), Toast.LENGTH_LONG).show();
                 if (pDialog != null)
                     pDialog.dismiss();
-                onResume();
+                refreshVolumeListUI();
                 isLoading = false;
                 return;
             } else if (result == Wenku8Error.ErrorCode.XML_PARSE_FAILED
@@ -1012,7 +1012,7 @@ public class NovelInfoActivity extends BaseMaterialActivity {
                 Toast.makeText(NovelInfoActivity.this, "Server returned strange data! (copyright reason?)", Toast.LENGTH_LONG).show();
                 if (pDialog != null)
                     pDialog.dismiss();
-                onResume();
+                refreshVolumeListUI();
                 isLoading = false;
                 return;
             }
@@ -1204,20 +1204,20 @@ public class NovelInfoActivity extends BaseMaterialActivity {
                 // user cancelled
                 Toast.makeText(NovelInfoActivity.this, R.string.system_manually_cancelled, Toast.LENGTH_LONG).show();
                 if (md != null) md.dismiss();
-                onResume();
+                refreshVolumeListUI();
                 loading = false;
                 return;
             } else if (errorCode == Wenku8Error.ErrorCode.NETWORK_ERROR) {
                 Toast.makeText(NovelInfoActivity.this, getResources().getString(R.string.system_network_error), Toast.LENGTH_LONG).show();
                 if (md != null) md.dismiss();
-                onResume();
+                refreshVolumeListUI();
                 loading = false;
                 return;
             } else if (errorCode == Wenku8Error.ErrorCode.XML_PARSE_FAILED
                     || errorCode == Wenku8Error.ErrorCode.SERVER_RETURN_NOTHING) {
                 Toast.makeText(NovelInfoActivity.this, "Server returned strange data! (copyright reason?)", Toast.LENGTH_LONG).show();
                 if (md != null) md.dismiss();
-                onResume();
+                refreshVolumeListUI();
                 loading = false;
                 return;
             }
@@ -1244,6 +1244,17 @@ public class NovelInfoActivity extends BaseMaterialActivity {
         }
 
         // refresh when back from reader activity
+        refreshVolumeListUI();
+    }
+
+    /**
+     * Safely refreshes the volume list UI without calling onResume().
+     * This avoids FragmentManager crashes when called from AsyncTask callbacks
+     * after the activity may have been destroyed.
+     */
+    private void refreshVolumeListUI() {
+        if (isFinishing() || isDestroyed()) return;
+
         buildVolumeList();
         if (mCurrentSelectedVolume != null) {
             buildChapterList(mCurrentSelectedVolume);
