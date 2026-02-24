@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.widget.Scroller;
 
+import org.mewx.wenku8.global.GlobalConfig;
 import org.mewx.wenku8.reader.slider.SlidingAdapter;
 import org.mewx.wenku8.reader.slider.SlidingLayout;
 
@@ -123,10 +124,12 @@ public class OverlappedSlider extends BaseSlider {
                     }
                     if (mMode == MODE_MOVE) {
                         mVelocityTracker.computeCurrentVelocity(1000, ViewConfiguration.getMaximumFlingVelocity());
-                        if (mDirection == MOVE_TO_LEFT) {
-                            mScrollerView.scrollTo(distance, 0);
-                        } else {
-                            mScrollerView.scrollTo(screenWidth + distance, 0);
+                        if (!GlobalConfig.isEbookModeEnabled()) {
+                            if (mDirection == MOVE_TO_LEFT) {
+                                mScrollerView.scrollTo(distance, 0);
+                            } else {
+                                mScrollerView.scrollTo(screenWidth + distance, 0);
+                            }
                         }
                     } else {
                         final int scrollX = mScrollerView.getScrollX();
@@ -156,33 +159,59 @@ public class OverlappedSlider extends BaseSlider {
 			 */
 
                 int time = 500;
+                boolean isEbookMode = GlobalConfig.isEbookModeEnabled();
+                if (isEbookMode) {
+                    time = 0;
+                }
 
                 if (mMode == MODE_MOVE && mDirection == MOVE_TO_LEFT) {
                     if (scrollX > limitDistance || mVelocityValue < -time) {
                         // 手指向左移动，可以翻屏幕
                         mTouchResult = MOVE_TO_LEFT;
                         if (mVelocityValue < -time) {
-                            time = 200;
+                            time = isEbookMode ? 0 : 200;
                         }
-                        mScroller.startScroll(scrollX, 0, screenWidth - scrollX, 0, time);
+                        if (isEbookMode) {
+                            mScrollerView.scrollTo(screenWidth, 0);
+                            resetVariables();
+                            invalidate();
+                            moveToNext();
+                            mTouchResult = MOVE_NO_RESULT;
+                        } else {
+                            mScroller.startScroll(scrollX, 0, screenWidth - scrollX, 0, time);
+                        }
                     } else {
                         mTouchResult = MOVE_NO_RESULT;
-                        mScroller.startScroll(scrollX, 0, -scrollX, 0, time);
+                        if (!isEbookMode) {
+                            mScroller.startScroll(scrollX, 0, -scrollX, 0, time);
+                        }
                     }
                 } else if (mMode == MODE_MOVE && mDirection == MOVE_TO_RIGHT) {
                     if ((screenWidth - scrollX) > limitDistance || mVelocityValue > time) {
                         // 手指向右移动，可以翻屏幕
                         mTouchResult = MOVE_TO_RIGHT;
                         if (mVelocityValue > time) {
-                            time = 250;
+                            time = isEbookMode ? 0 : 250;
                         }
-                        mScroller.startScroll(scrollX, 0, -scrollX, 0, time);
+                        if (isEbookMode) {
+                            mScrollerView.scrollTo(0, 0);
+                            resetVariables();
+                            invalidate();
+                            moveToPrevious();
+                            mTouchResult = MOVE_NO_RESULT;
+                        } else {
+                            mScroller.startScroll(scrollX, 0, -scrollX, 0, time);
+                        }
                     } else {
                         mTouchResult = MOVE_NO_RESULT;
-                        mScroller.startScroll(scrollX, 0, screenWidth - scrollX, 0, time);
+                        if (!isEbookMode) {
+                            mScroller.startScroll(scrollX, 0, screenWidth - scrollX, 0, time);
+                        }
                     }
                 }
-                resetVariables();
+                if (!isEbookMode) {
+                    resetVariables();
+                }
                 invalidate();
                 break;
         }
@@ -301,10 +330,14 @@ public class OverlappedSlider extends BaseSlider {
 
         mScrollerView = getCurrentShowView();
 
-        mScroller.startScroll(0, 0, screenWidth, 0, 500);
-        mTouchResult = MOVE_TO_LEFT;
-
-        mSlidingLayout.slideScrollStateChanged(MOVE_TO_LEFT);
+        if (GlobalConfig.isEbookModeEnabled()) {
+            mScrollerView.scrollTo(screenWidth, 0);
+            moveToNext();
+        } else {
+            mScroller.startScroll(0, 0, screenWidth, 0, 500);
+            mTouchResult = MOVE_TO_LEFT;
+            mSlidingLayout.slideScrollStateChanged(MOVE_TO_LEFT);
+        }
 
         invalidate();
     }
@@ -316,10 +349,14 @@ public class OverlappedSlider extends BaseSlider {
 
         mScrollerView = getTopView();
 
-        mScroller.startScroll(screenWidth, 0, -screenWidth, 0, 500);
-        mTouchResult = MOVE_TO_RIGHT;
-
-        mSlidingLayout.slideScrollStateChanged(MOVE_TO_RIGHT);
+        if (GlobalConfig.isEbookModeEnabled()) {
+            mScrollerView.scrollTo(0, 0);
+            moveToPrevious();
+        } else {
+            mScroller.startScroll(screenWidth, 0, -screenWidth, 0, 500);
+            mTouchResult = MOVE_TO_RIGHT;
+            mSlidingLayout.slideScrollStateChanged(MOVE_TO_RIGHT);
+        }
 
         invalidate();
     }

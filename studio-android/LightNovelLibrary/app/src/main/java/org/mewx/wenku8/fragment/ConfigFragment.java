@@ -19,6 +19,8 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.widget.SwitchCompat;
+
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import org.mewx.wenku8.util.ProgressDialogHelper;
@@ -129,6 +131,15 @@ public class ConfigFragment extends Fragment {
             Intent intent = new Intent(getActivity(), MenuBackgroundSelectorActivity.class);
             startActivity(intent);
         });
+        
+        // Initialize ebook mode switch
+        SwitchCompat switchEbookMode = getActivity().findViewById(R.id.switch_ebook_mode);
+        String ebookMode = GlobalConfig.getFromAllSetting(GlobalConfig.SettingItems.ebook_mode);
+        switchEbookMode.setChecked("true".equals(ebookMode));
+        switchEbookMode.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            GlobalConfig.setToAllSetting(GlobalConfig.SettingItems.ebook_mode, String.valueOf(isChecked));
+        });
+        
         getActivity().findViewById(R.id.btn_check_update).setOnClickListener(v -> {
             new CheckAppNewVersion(getActivity(), true).execute();
         });

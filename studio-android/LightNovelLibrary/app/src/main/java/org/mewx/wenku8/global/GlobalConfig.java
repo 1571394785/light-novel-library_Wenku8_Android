@@ -104,6 +104,7 @@ public class GlobalConfig {
         reader_paragraph_distance, // (int) dp (0 - 48)
         reader_paragraph_edge_distance, // (int) dp (0 - 32)
         reader_background_path, // (String) path to an image, day mode only, "0" means default
+        ebook_mode, // (String) "true" or "false"
     }
 
     // sets and gets
@@ -130,6 +131,11 @@ public class GlobalConfig {
         // FIXME
         Wenku8API.CurrentLang = currentLang;
         return currentLang;
+    }
+
+    public static boolean isEbookModeEnabled() {
+        String ebookMode = getFromAllSetting(SettingItems.ebook_mode);
+        return "true".equals(ebookMode);
     }
 
     public static void initImageLoader(Context context) {
