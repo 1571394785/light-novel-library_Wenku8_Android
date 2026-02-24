@@ -107,4 +107,44 @@ public class WenkuReaderPaginatorTest {
         // Line 2: "　　「呼……」"
         assertEquals("　　「呼……」", lines.get(2).text());
     }
+
+    @Test
+    public void testCalcFromLastBasic() {
+        WenkuReaderPaginator paginator = new WenkuReaderPaginator(XML_LOADER, text -> text.length() * 20, 400, 800, 30, 10, 20);
+
+        // First paginate forward to get valid end indices.
+        paginator.setPageStart(0, 0);
+        paginator.calcFromFirst();
+
+        int lastLine = paginator.getLastLineIndex();
+        int lastWord = paginator.getLastWordIndex();
+
+        // Now paginate backwards from the end of the first page.
+        paginator.setPageEnd(lastLine, lastWord);
+        paginator.calcFromLast();
+
+        List<LineInfo> lines = paginator.getLineInfoList();
+        assertFalse("calcFromLast should produce non-empty lines", lines.isEmpty());
+    }
+
+    @Test
+    public void testCalcFromLastWithEmptyParagraphs() {
+        // The sample text has multiple empty/whitespace-only lines that become empty strings
+        // in the loader. This verifies calcFromLast() skips them without NPE.
+        WenkuReaderPaginator paginator = new WenkuReaderPaginator(XML_LOADER, text -> text.length() * 20, 400, 800, 30, 10, 20);
+
+        // Navigate forward past empty paragraphs.
+        paginator.setPageStart(3, 0);
+        paginator.calcFromFirst();
+
+        int lastLine = paginator.getLastLineIndex();
+        int lastWord = paginator.getLastWordIndex();
+
+        // Now go backwards — this must traverse through the empty paragraphs without crashing.
+        paginator.setPageEnd(lastLine, lastWord);
+        paginator.calcFromLast();
+
+        List<LineInfo> lines = paginator.getLineInfoList();
+        assertFalse("calcFromLast through empty paragraphs should produce lines", lines.isEmpty());
+    }
 }

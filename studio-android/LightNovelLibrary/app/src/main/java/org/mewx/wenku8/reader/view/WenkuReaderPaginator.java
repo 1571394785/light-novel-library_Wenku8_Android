@@ -176,6 +176,22 @@ class WenkuReaderPaginator {
             WenkuReaderLoader.ElementType curType = mLoader.getCurrentType();
             String curString = mLoader.getCurrentAsString();
 
+            // Skip null or empty strings (same guard as calcFromFirst).
+            if (curString == null || curString.isEmpty()) {
+                if (curLineIndex - 1 >= 0) {
+                    mLoader.setCurrentIndex(-- curLineIndex);
+                    curWordIndex = mLoader.getCurrentStringLength();
+                } else {
+                    firstLineIndex = 0;
+                    firstWordIndex = 0;
+                    mLoader.setCurrentIndex(firstLineIndex);
+                    lineInfoList.clear();
+                    calcFromFirst();
+                    break;
+                }
+                continue;
+            }
+
             // special to image
             if(curType == WenkuReaderLoader.ElementType.IMAGE_DEPENDENT && !lineInfoList.isEmpty()) {
                 // System.out.println("jump 1");
