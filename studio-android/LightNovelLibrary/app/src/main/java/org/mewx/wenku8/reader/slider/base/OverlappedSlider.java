@@ -173,7 +173,6 @@ public class OverlappedSlider extends BaseSlider {
                         }
                         if (isEinkMode) {
                             mScrollerView.scrollTo(screenWidth, 0);
-                            resetVariables();
                             invalidate();
                             moveToNext();
                             mTouchResult = MOVE_NO_RESULT;
@@ -195,7 +194,6 @@ public class OverlappedSlider extends BaseSlider {
                         }
                         if (isEinkMode) {
                             mScrollerView.scrollTo(0, 0);
-                            resetVariables();
                             invalidate();
                             moveToPrevious();
                             mTouchResult = MOVE_NO_RESULT;
@@ -209,9 +207,7 @@ public class OverlappedSlider extends BaseSlider {
                         }
                     }
                 }
-                if (!isEinkMode) {
-                    resetVariables();
-                }
+                resetVariables();
                 invalidate();
                 break;
         }
