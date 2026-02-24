@@ -176,8 +176,8 @@ public class WenkuReaderPageView extends View {
      * If textPaint is null, then do nothing.
      */
     static public void resetTextColor() {
-        textPaint.setColor(getInDayMode() ? mSetting.fontColorDark : mSetting.fontColorLight);
-        widgetTextPaint.setColor(getInDayMode() ? mSetting.fontColorDark : mSetting.fontColorLight);
+        textPaint.setColor(getInDayMode() || GlobalConfig.isEinkModeEnabled() ? mSetting.fontColorDark : mSetting.fontColorLight);
+        widgetTextPaint.setColor(getInDayMode() || GlobalConfig.isEinkModeEnabled() ? mSetting.fontColorDark : mSetting.fontColorLight);
     }
 
     /**
