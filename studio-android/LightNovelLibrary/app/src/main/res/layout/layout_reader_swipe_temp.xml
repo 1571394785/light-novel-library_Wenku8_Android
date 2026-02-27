@@ -54,7 +54,7 @@
                     android:scaleType="fitCenter"
                     android:clickable="false"
                     android:background="@android:color/transparent"
-                    android:src="@drawable/ic_reader_daynight"/>
+                    android:src="@drawable/ic_reader_daynight_vector"/>
             </LinearLayout>
 
             <LinearLayout
@@ -73,7 +73,7 @@
                     android:scaleType="fitCenter"
                     android:clickable="false"
                     android:background="@android:color/transparent"
-                    android:src="@drawable/ic_reader_jump"/>
+                    android:src="@drawable/ic_reader_jump_vector"/>
             </LinearLayout>
 
             <LinearLayout
@@ -92,7 +92,7 @@
                     android:scaleType="fitCenter"
                     android:clickable="false"
                     android:background="@android:color/transparent"
-                    android:src="@drawable/ic_reader_find"/>
+                    android:src="@drawable/ic_reader_find_vector"/>
             </LinearLayout>
 
             <LinearLayout
@@ -111,7 +111,7 @@
                     android:scaleType="fitCenter"
                     android:clickable="false"
                     android:background="@android:color/transparent"
-                    android:src="@drawable/ic_reader_more"/>
+                    android:src="@drawable/ic_reader_more_vector"/>
             </LinearLayout>
         </LinearLayout>
 

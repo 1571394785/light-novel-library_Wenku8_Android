@@ -745,6 +745,10 @@ public class Wenku8ReaderActivityV1 extends BaseMaterialActivity {
                                         }
                                     }
                                 });
+                                
+                                isSet = true;
+                                // Initialize UI for e-ink mode on first show
+                                updateReaderUIForEinkMode();
                             }
                         }
                         else {
@@ -972,5 +976,92 @@ public class Wenku8ReaderActivityV1 extends BaseMaterialActivity {
     public void onBackPressed() {
         super.onBackPressed();
         overridePendingTransition(0, R.anim.fade_out);
+    }
+
+    /**
+     * Update reader UI elements for e-ink mode.
+     * Apply white background with black borders for better contrast on e-ink screens.
+     * Only applies when ebook_mode setting is enabled.
+     */
+    private void updateReaderUIForEinkMode() {
+        String ebookModeStr = GlobalConfig.getFromAllSetting(GlobalConfig.SettingItems.ebook_mode);
+        boolean isEbookMode = "true".equals(ebookModeStr);
+        
+        if (!isEbookMode) {
+            return; // Don't apply e-ink styling if not in ebook mode
+        }
+        
+        // Update toolbar and bottom bar backgrounds
+        int toolbarColor = getResources().getColor(R.color.reader_default_bg_toolbar_eink);
+        
+        androidx.appcompat.widget.Toolbar toolbar = findViewById(R.id.toolbar_actionbar);
+        toolbar.setBackgroundColor(toolbarColor);
+        
+        // Update toolbar title color and navigation icon to black for e-ink visibility
+        int blackColor = getResources().getColor(R.color.reader_text_eink);
+        if (getSupportActionBar() != null) {
+            toolbar.setTitleTextColor(blackColor);
+            
+            // Update back button (navigation icon) color
+            Drawable navIcon = toolbar.getNavigationIcon();
+            if (navIcon != null) {
+                navIcon.setColorFilter(blackColor, PorterDuff.Mode.SRC_ATOP);
+            }
+        }
+        
+        // Update menu icons color
+        if (toolbar.getMenu() != null) {
+            for (int i = 0; i < toolbar.getMenu().size(); i++) {
+                Drawable icon = toolbar.getMenu().getItem(i).getIcon();
+                if (icon != null) {
+                    icon.mutate();
+                    icon.setColorFilter(blackColor, PorterDuff.Mode.SRC_ATOP);
+                }
+            }
+        }
+        
+        findViewById(R.id.reader_bot).setBackgroundColor(toolbarColor);
+        findViewById(R.id.reader_bot_seeker).setBackgroundColor(toolbarColor);
+        findViewById(R.id.reader_bot_settings).setBackgroundColor(toolbarColor);
+        
+        // Update button backgrounds with black borders
+        int buttonBg = R.drawable.btn_menu_item_eink;
+        findViewById(R.id.btn_daylight).setBackgroundResource(buttonBg);
+        findViewById(R.id.btn_jump).setBackgroundResource(buttonBg);
+        findViewById(R.id.btn_find).setBackgroundResource(buttonBg);
+        findViewById(R.id.btn_config).setBackgroundResource(buttonBg);
+        
+        // Update icon sizes (larger for e-ink) and colors (black)
+        int iconSize = LightTool.dip2px(this, 36);
+        int iconColor = getResources().getColor(R.color.reader_text_eink);
+        
+        android.widget.ImageButton[] icons = {
+            findViewById(R.id.ic_daylight),
+            findViewById(R.id.ic_jump),
+            findViewById(R.id.ic_find),
+            findViewById(R.id.ic_config)
+        };
+        
+        for (android.widget.ImageButton icon : icons) {
+            ViewGroup.LayoutParams params = icon.getLayoutParams();
+            params.width = iconSize;
+            params.height = iconSize;
+            icon.setLayoutParams(params);
+            icon.setColorFilter(iconColor, PorterDuff.Mode.SRC_ATOP);
+        }
+        
+        // Update text colors to black
+        int textColor = getResources().getColor(R.color.reader_text_eink);
+        
+        int[] textViews = {
+            R.id.text_previous, R.id.text_next,
+            R.id.text_font_size, R.id.text_line_distance,
+            R.id.text_paragraph_distance, R.id.text_paragraph_edge_distance,
+            R.id.btn_custom_font, R.id.btn_custom_background
+        };
+        
+        for (int id : textViews) {
+            ((android.widget.TextView) findViewById(id)).setTextColor(textColor);
+        }
     }
 }

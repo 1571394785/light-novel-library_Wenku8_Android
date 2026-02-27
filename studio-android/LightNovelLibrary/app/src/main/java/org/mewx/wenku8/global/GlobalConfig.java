@@ -756,6 +756,12 @@ public class GlobalConfig {
         if(version == null || version.isEmpty()) {
             setToAllSetting(SettingItems.version, "1");
         }
+        
+        // Initialize ebook_mode default value if not set
+        String ebookMode = getFromAllSetting(SettingItems.ebook_mode);
+        if(ebookMode == null || ebookMode.isEmpty()) {
+            setToAllSetting(SettingItems.ebook_mode, "false");
+        }
         // Else, reserved for future settings migration.
     }
 
